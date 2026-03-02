@@ -1,0 +1,6 @@
+@CyberQuiz.API_HostAddress = http://localhost:5276
+
+GET {{CyberQuiz.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
