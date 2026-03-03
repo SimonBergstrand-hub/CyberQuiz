@@ -23,15 +23,10 @@
                 <h2>Use a local account to log in.</h2>
                 <hr />
                 <ValidationSummary class="text-danger" role="alert" />
-@*                 <div class="form-floating mb-3">
+                <div class="form-floating mb-3">
                     <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" autocomplete="username webauthn" aria-required="true" placeholder="name@example.com" />
                     <label for="Input.Email" class="form-label">Email</label>
                     <ValidationMessage For="() => Input.Email" class="text-danger" />
-                </div> *@
-                <div class="form-floating mb-3">
-                    <InputText @bind-Value="Input.UserName" id="Input.UserName" class="form-control" autocomplete="username webauthn" aria-required="true" placeholder="UserName" />
-                    <label for="Input.UserName" class="form-label">UserName</label>
-                    <ValidationMessage For="() => Input.UserName" class="text-danger" />
                 </div>
                 <div class="form-floating mb-3">
                     <InputText type="password" @bind-Value="Input.Password" id="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
@@ -124,24 +119,9 @@
                 return;
             }
 
-            // Allow users to log in with either their username or email.
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-            var lookupUserName = Input.UserName ?? string.Empty;
-            var user = await UserManager.FindByNameAsync(lookupUserName);
-            if (user == null && lookupUserName.Contains("@"))
-            {
-                user = await UserManager.FindByEmailAsync(lookupUserName);
-            }
-
-            if (user != null)
-            {
-                result = await SignInManager.PasswordSignInAsync(user.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-            }
-            else
-            {
-                result = SignInResult.Failed;
-            }
+            result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
         }
 
         if (result.Succeeded)
@@ -168,11 +148,9 @@
 
     private sealed class InputModel
     {
-        // [Required]
-        // [EmailAddress]
-        // public string Email { get; set; } = "";
         [Required]
-        public string UserName { get; set; } = "";
+        [EmailAddress]
+        public string Email { get; set; } = "";
 
         [Required]
         [DataType(DataType.Password)]
