@@ -9,5 +9,37 @@ namespace CyberQuiz.BLL.Services
     {
         private readonly CyberQuizDbContext _context;
 
+
+        public async Task<double> CalculateScorePercentage(string userId, int subCategoryId)
+        {
+            var totalQuestions = await _context.Questions
+                .CountAsync(q => q.SubCategoryId == subCategoryId);
+
+            var correctAnswers = await _context.UserResults
+                .Where(r => r.UserId == userId && r.Quetion.SubCategoryId == subCategoryId && r.IsCorrect)
+                .CountAsync();
+
+            if (totalQuestions == 0)
+                return 0;
+
+            return (double)correctAnswers / totalQuestions * 100;
+        }
+
+        public async Task<bool> HasPassedSubCategory(string userId, int subCategoryId)
+        {
+            var percentage = await CalculateScorePercentage(userId, subCategoryId);
+            return percentage >= 80;
+        }
+        public async Task UnlockNextSubCategory(string userId, int currentSubCategoryId)
+        {
+            var current = await _context.SubCategories
+                .FirstOrDefaultAsync(s => s.Id == currentSubCategoryId);
+
+            if (current == null) return;
+
+           
+        }
     }
+
+   
 }
