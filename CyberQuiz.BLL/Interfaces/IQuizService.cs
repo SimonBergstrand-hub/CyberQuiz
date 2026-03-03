@@ -1,17 +1,16 @@
-﻿using System;
+﻿using CyberQuiz.BLL.DTOs;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace CyberQuiz.BLL.Interfaces
 {
-    internal class IQuizService
+    public interface IQuizService
     {
-        GetQuestionsForSubcategory(var subCategoryId)
-        {
 
-        }
-        SubmitAnswer(var UserId, var QuestionId, var answerOptionId)
-        {
-        }
+        Task<bool> SubmitAnswer(int userId, int questionId, int answerOptionId);
+
+        Task<List<QuestionDTO>> GetQuestionsForSubcategory(int subcategoryId);
+
     }
 }

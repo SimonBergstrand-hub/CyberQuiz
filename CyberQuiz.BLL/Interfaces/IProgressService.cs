@@ -7,17 +7,10 @@ namespace CyberQuiz.BLL.Interfaces
 {
     internal class IProgressService
     {
-        HasPassedSubcategory(var userId, var subcategoryId)
-        {
+        Task<double> CalculateScorePercentage(string userId, int subCategoryId);
 
-        }
-        CalculateScorePercentage(var userId,var subcategoryId)
-        {
+        Task<bool> HasPassedSubCategory(string userId, int subCategoryId);
 
-        }
-        UnlockNextSubcategory(var userId, var currentSubcategoryId)
-        {
-
-        }
+        Task UnlockNextSubCategory(string userId, int currentSubCategoryId);
     }
 }
