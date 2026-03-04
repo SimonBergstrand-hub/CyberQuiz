@@ -147,7 +147,15 @@
         if (result.Succeeded)
         {
             Logger.LogInformation("User logged in.");
-            RedirectManager.RedirectTo(ReturnUrl);
+
+            if (!string.IsNullOrEmpty(ReturnUrl))
+            {
+                RedirectManager.RedirectTo(ReturnUrl);
+            }
+            else
+            {
+                RedirectManager.RedirectTo("/categories");
+            }
         }
         else if (result.RequiresTwoFactor)
         {

@@ -7,13 +7,10 @@
     }
     else
     {
-        @for (int i = 0; i < Categories.Count; i++)
+        @foreach (var category in Categories)
         {
-            var category = Categories[i];
-            bool isEnabled = i == 0 || Categories[i - 1].Percentage >= 80;
-
             <CategoryCard Category="category"
-                          IsEnabled="isEnabled"
+                          IsEnabled="category.IsUnlocked"
                           GoToDetails="GoToDetails" />
         }
     }
