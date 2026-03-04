@@ -1,0 +1,35 @@
+﻿@page "/"
+@page "/welcome"
+
+<div class="welcome-content d-flex flex-column justify-content-center align-items-center text-center vh-100">
+    <h1 class="display-4 fw-bold mb-3">Welcome to CyberQuiz!</h1>
+    <p class="lead mb-5">Make learning fun and interactive – start your Quiz adventure today!</p>
+
+    <div class="d-flex justify-content-center gap-3">
+        <a href="/Account/Login" class="btn btn-primary btn-lg">Log in</a>
+        <a href="/Account/Register" class="btn btn-primary btn-lg">Register</a>
+    </div>
+</div>
+
+<style>
+    .welcome-content {
+        position: relative; /* above the layout overlay */
+        z-index: 1;
+        padding: 2rem;
+        color: white;
+    }
+
+    /* Optional: slightly enlarge buttons */
+    a.btn {
+        min-width: 160px;
+        padding: 0.75rem 1.5rem;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    a.btn-primary:hover {
+        background-color: #0b5ed7;
+        border-color: #0b5ed7;
+    }
+
+</style>
