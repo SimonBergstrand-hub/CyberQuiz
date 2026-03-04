@@ -37,6 +37,15 @@ namespace CyberQuiz.BLL.Services
 
             if (current == null) return;
 
+            var next = await _context.SubCategories
+                .Where(s => s.CategoryId == current.CategoryId && s.Order > current.Order)
+                .OrderBy(s => s.Order)
+                .FirstOrDefaultAsync();
+
+            if (next == Null) return;
+
+
+
            
         }
     }
