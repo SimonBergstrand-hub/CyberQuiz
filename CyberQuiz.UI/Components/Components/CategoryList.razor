@@ -1,0 +1,30 @@
+﻿@using CyberQuiz.UI.ViewModels
+
+<div class="category-list">
+    @if (Categories == null || !Categories.Any())
+    {
+        <p>No categories available</p>
+    }
+    else
+    {
+        @foreach (var category in Categories)
+        {
+            <CategoryCard Category="category"
+                          IsEnabled="category.IsUnlocked"
+                          GoToDetails="GoToDetails" />
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public List<CategoryProgressViewModel> Categories { get; set; } = new();
+    [Parameter] public EventCallback<int> GoToDetails { get; set; }
+}
+
+<style>
+    .category-list {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+</style>

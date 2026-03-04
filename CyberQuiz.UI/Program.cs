@@ -1,3 +1,4 @@
+using CyberQuiz.Services;
 using CyberQuiz.DAL.Quiz;
 using CyberQuiz.UI.Components;
 using CyberQuiz.UI.Components.Account;
@@ -15,6 +16,9 @@ builder.Services.AddRazorComponents()
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<CategoryService>();
 
 builder.Services.AddAuthentication(options =>
     {
