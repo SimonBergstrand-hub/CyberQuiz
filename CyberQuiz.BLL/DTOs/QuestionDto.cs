@@ -9,6 +9,6 @@ namespace CyberQuiz.BLL.DTOs
         int id {  get; set; }
         string text { get; set; }
 
-        list<AnswerOptionDTO> optionlist { get; set; }
+        //list<AnswerOptionDTO> optionlist { get; set; }
     }
 }
