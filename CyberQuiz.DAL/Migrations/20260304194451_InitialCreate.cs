@@ -5,7 +5,7 @@
 namespace CyberQuiz.DAL.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialQuiz : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

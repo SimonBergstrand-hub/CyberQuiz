@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using CyberQuiz.DAL.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace CyberQuiz.DAL.Quiz
+namespace CyberQuiz.DAL.Data
 {
     public class QuizDbContext : DbContext
     {
         public QuizDbContext(DbContextOptions<QuizDbContext> options)
-        : base(options) {}
+        : base(options) { }
 
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<SubCategory> SubCategories => Set<SubCategory>();
