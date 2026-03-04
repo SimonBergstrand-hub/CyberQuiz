@@ -10,7 +10,7 @@ namespace CyberQuiz.BLL.Interfaces
 
         Task<bool> SubmitAnswer(int userId, int questionId, int answerOptionId);
 
-        Task<List<QuestionDTO>> GetQuestionsForSubcategory(int subcategoryId);
+        //Task<List<QuestionDTO>> GetQuestionsForSubcategory(int subcategoryId);
 
     }
 }
