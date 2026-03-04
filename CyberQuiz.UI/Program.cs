@@ -1,3 +1,4 @@
+using CyberQuiz.DAL.Quiz;
 using CyberQuiz.UI.Components;
 using CyberQuiz.UI.Components.Account;
 using CyberQuiz.UI.Data;
@@ -37,6 +38,16 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+/////////////////////////////
+
+//builder.Services.AddDbContext<IdentityDbContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection")));
+
+builder.Services.AddDbContext<QuizDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("QuizConnection")));
+
+///////////////////////////
 
 var app = builder.Build();
 
