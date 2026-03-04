@@ -3,50 +3,38 @@
     display: flex;
     flex-direction: column;
 }
-
-main {
-    flex: 1;
-}
-
 .sidebar {
     background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
 }
-
-.top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
-    justify-content: flex-end;
-    height: 3.5rem;
-    display: flex;
-    align-items: center;
+main {
+    flex: 1;
+}
+/* Background starts here (NOT behind sidebar) */
+.main-content {
+    position: relative;
+    min-height: 100vh;
+    background-image: url('/images/QuizBackground.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        white-space: nowrap;
-        margin-left: 1.5rem;
-        text-decoration: none;
+    .main-content::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.4);
+        z-index: 0;
     }
 
-    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
-        text-decoration: underline;
+    .main-content > * {
+        position: relative;
+        z-index: 1;
     }
 
-    .top-row ::deep a:first-child {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-@media (max-width: 640.98px) {
-    .top-row {
-        justify-content: space-between;
-    }
-
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        margin-left: 0;
-    }
-}
 
 @media (min-width: 641px) {
+
     .page {
         flex-direction: row;
     }
@@ -58,23 +46,25 @@ main {
         top: 0;
     }
 
-    .top-row {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
-
-    .top-row.auth ::deep a:first-child {
-        flex: 1;
-        text-align: right;
-        width: 0;
-    }
-
-    .top-row, article {
+    article {
         padding-left: 2rem !important;
         padding-right: 1.5rem !important;
     }
 }
+
+@media (max-width: 640.98px) {
+
+    .page {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+}
+
 
 #blazor-error-ui {
     color-scheme: light only;
