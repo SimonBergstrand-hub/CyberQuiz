@@ -9,13 +9,16 @@ namespace CyberQuiz.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly SubCategoryService _subCategoryService;
 
         public CategoryService(
             UserManager<ApplicationUser> userManager,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            SubCategoryService subCategoryService)
         {
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
+            _subCategoryService = subCategoryService;
         }
 
         public async Task<List<CategoryProgressViewModel>> GetUserCategoryProgressAsync()
@@ -28,16 +31,20 @@ namespace CyberQuiz.Services
 
             var categories = new List<CategoryProgressViewModel>
             {
-                new() { CategoryId = 1, Name="Network Security", Description="Core fundamentals", CorrectAnswers=9, TotalQuestions=10 },
-                new() { CategoryId = 2, Name="Cryptography", Description="Encryption & hashing", CorrectAnswers=8, TotalQuestions=10 },
-                new() { CategoryId = 3, Name="Web Security", Description="OWASP & attacks", CorrectAnswers=3, TotalQuestions=10 },
-                new() { CategoryId = 4, Name="Malware Analysis", Description="Reverse engineering basics", CorrectAnswers=0, TotalQuestions=10 }
+                new() { CategoryId = 1, Name="Network Security", Description="Core fundamentals" },
+                new() { CategoryId = 2, Name="Cryptography", Description="Encryption & hashing" },
+                new() { CategoryId = 3, Name="Web Security", Description="OWASP & attacks" },
+                new() { CategoryId = 4, Name="Malware Analysis", Description="Reverse engineering basics" }
             };
 
-            for (int i = 0; i < categories.Count; i++)
+            foreach (var category in categories)
             {
-                categories[i].IsUnlocked =
-                    i == 0 || categories[i - 1].Percentage >= 80;
+                var subcategories =
+                    await _subCategoryService.GetSubCategoriesAsync(category.CategoryId);
+
+                category.TotalQuestions = subcategories.Sum(s => s.TotalQuestions);
+                category.CorrectAnswers = subcategories.Sum(s => s.CorrectAnswers);
+                category.SubCategories = subcategories;
             }
 
             return categories;

@@ -1,0 +1,26 @@
+.sub-progress-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.sub-progress-item {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 140px;
+    min-width: 120px;
+    max-width: 220px;
+}
+/*Razor treats @media as a C# directive which means it does not work in the component file*/
+@media (max-width: 640px) {
+    .sub-progress-list {
+        flex-direction: column;
+    }
+
+    .sub-progress-item {
+        min-width: auto;
+        max-width: none;
+    }
+}
