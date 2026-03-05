@@ -10,7 +10,7 @@ namespace CyberQuiz.BLL.Services
         private readonly CyberQuizDbContext _context;
 
         //räknar ut procent
-
+        
         public async Task<double> CalculateScorePercentage(string userId, int subCategoryId)
         {
             var totalQuestions = await _context.Questions
