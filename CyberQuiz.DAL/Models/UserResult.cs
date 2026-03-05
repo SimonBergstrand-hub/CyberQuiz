@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace CyberQuiz.DAL.Quiz
+﻿namespace CyberQuiz.DAL.Models
 {
     public class UserResult
     {

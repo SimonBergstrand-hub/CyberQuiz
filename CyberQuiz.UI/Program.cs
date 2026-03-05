@@ -1,5 +1,5 @@
+using CyberQuiz.DAL.Data;
 using CyberQuiz.Services;
-using CyberQuiz.DAL.Quiz;
 using CyberQuiz.UI.Components;
 using CyberQuiz.UI.Components.Account;
 using CyberQuiz.UI.Data;
