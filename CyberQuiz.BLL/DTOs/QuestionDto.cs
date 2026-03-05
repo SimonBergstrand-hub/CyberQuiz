@@ -4,11 +4,11 @@ using System.Text;
 
 namespace CyberQuiz.BLL.DTOs
 {
-    internal class QuestionDTO
+    public class QuestionDTO
     {
-        int id {  get; set; }
-        string text { get; set; }
+        public int Id {  get; set; }
+        public string Text { get; set; }
 
-        //list<AnswerOptionDTO> optionlist { get; set; }
+        public List<AnswerOptionDTO> optionlist { get; set; }
     }
 }
