@@ -7,7 +7,7 @@ namespace CyberQuiz.BLL.Services
 {
     internal class ProgressService : IProgressService
     {
-        private readonly CyberQuizDbContext _context;
+        //private readonly CyberQuizDbContext _context;
 
         //räknar ut procent
 
