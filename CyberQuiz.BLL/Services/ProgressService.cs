@@ -9,6 +9,7 @@ namespace CyberQuiz.BLL.Services
     {
         private readonly CyberQuizDbContext _context;
 
+        //räknar ut procent
 
         public async Task<double> CalculateScorePercentage(string userId, int subCategoryId)
         {
@@ -25,11 +26,15 @@ namespace CyberQuiz.BLL.Services
             return (double)correctAnswers / totalQuestions * 100;
         }
 
+        //kollar om procent >80
+
         public async Task<bool> HasPassedSubCategory(string userId, int subCategoryId)
         {
             var percentage = await CalculateScorePercentage(userId, subCategoryId);
             return percentage >= 80;
         }
+
+        // låser upp nästa subkategori(om det finns)
         public async Task UnlockNextSubCategory(string userId, int currentSubCategoryId)
         {
             var current = await _context.SubCategories
