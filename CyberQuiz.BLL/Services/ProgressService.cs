@@ -1,13 +1,24 @@
 ﻿using System;
 using CyberQuiz.BLL.Interfaces;
+using CyberQuiz.DAL
+
 using System.Collections.Generic;
 using System.Text;
+using CyberQuiz.DAL.Quiz;
 
 namespace CyberQuiz.BLL.Services
 {
     internal class ProgressService : IProgressService
     {
-        //private readonly CyberQuizDbContext _context;
+        private readonly CyberQuizDbContext _context;
+
+        public ProgressService(QuizDbContext context)
+        {
+            _context = context;
+        }
+
+        int num = 1;
+        
 
         //räknar ut procent
         
