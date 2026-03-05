@@ -1,16 +1,17 @@
 ﻿using System;
 using CyberQuiz.BLL.Interfaces;
-using CyberQuiz.DAL
+using CyberQuiz.DAL;
 
 using System.Collections.Generic;
 using System.Text;
 using CyberQuiz.DAL.Quiz;
+using Microsoft.EntityFrameworkCore;
 
 namespace CyberQuiz.BLL.Services
 {
     internal class ProgressService : IProgressService
     {
-        private readonly CyberQuizDbContext _context;
+        private readonly QuizDbContext _context;
 
         public ProgressService(QuizDbContext context)
         {
@@ -27,9 +28,15 @@ namespace CyberQuiz.BLL.Services
             var totalQuestions = await _context.Questions
                 .CountAsync(q => q.SubCategoryId == subCategoryId);
 
-            var correctAnswers = await _context.UserResults
-                .Where(r => r.UserId == userId && r.Quetion.SubCategoryId == subCategoryId && r.IsCorrect)
-                .CountAsync();
+            var correctAnswers = await (from ur in _context.UserResults
+                                        join q in _context.Questions
+                                            on ur.QuestionId equals q.Id
+                                        where ur.UserId == userId &&
+                                              q.SubCategoryId == subCategoryId &&
+                                              ur.IsCorrect
+                                        select ur)
+                                        .CountAsync();
+                            
 
             if (totalQuestions == 0)
                 return 0;
@@ -58,14 +65,14 @@ namespace CyberQuiz.BLL.Services
                 .OrderBy(s => s.Order)
                 .FirstOrDefaultAsync();
 
-            if (next == Null) return;
+            if (next == null) return;
 
             //skapar och sparar att användaren har låst upp subkategorin
 
             var unlock = new UserUnlockedSubCategory
             {
                 UserId = userId,
-                SubCategoryId = next.id
+                SubCategoryId = next.Id
             };
 
             _context.Add(unlock);
