@@ -11,7 +11,8 @@
         public int TotalQuestions { get; set; }
         public int CorrectAnswers { get; set; }
 
-        public bool IsUnlocked { get; set; } 
+        // Per-category subcategories so UI can show per-subcategory progress bars
+        public List<SubCategoryViewModel> SubCategories { get; set; } = new();
 
         public double Percentage =>
             TotalQuestions == 0 ? 0 :

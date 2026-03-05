@@ -1,19 +1,46 @@
 ﻿@using CyberQuiz.UI.ViewModels
+@inject NavigationManager NavigationManager
 
-<div class="category-card @(IsEnabled ? "clickable" : "disabled")"
-     @onclick="HandleClick">
-
-
+<button type="button" 
+        class="category-card"
+        @onclick="HandleClick">
 
     <h4>@Category.Name</h4>
     <p>@Category.Description</p>
 
-    <div class="progress-bar-container">
-        <div class="progress-bar" style="width:@Category.Percentage%">
-            @($"{Category.Percentage:0}%")
+    @if (Category.SubCategories != null && Category.SubCategories.Any())
+    {
+        <div class="sub-progress-list">
+            @foreach (var sub in Category.SubCategories)
+            {
+                    <div class="sub-progress-item">
+                        <div class="sub-progress-label">
+                            <span class="sub-progress-name">@sub.DifficultyName</span>
+                            @if (!sub.IsUnlocked)
+                            {
+                                <span class="sub-progress-lock" title="Locked — unlock by scoring 80% or higher on the previous difficulty" aria-label="Locked">🔒</span>
+                            }
+                        </div>
+
+                        <div class="progress-row">
+                            <div class="progress-bar-container small">
+                                <div class="progress-bar small @(sub.IsUnlocked ? string.Empty : "locked")" style="width:@GetSubProgressWidth(sub)"></div>
+                            </div>
+                            <div class="sub-progress-value">@($"{sub.Percentage:0}%")</div>
+                        </div>
+                    </div>
+            }
         </div>
-    </div>
-</div>
+    }
+    else
+    {
+        <div class="progress-bar-container">
+            <div class="progress-bar" style="width:@ProgressWidth">
+                @($"{Category.Percentage:0}%")
+            </div>
+        </div>
+    }
+</button>
 
 @code {
     [Parameter] public CategoryProgressViewModel Category { get; set; } = new();
@@ -22,54 +49,73 @@
 
     private async Task HandleClick()
     {
-        if (!IsEnabled) return;  // Prevent click if category locked
-        await GoToDetails.InvokeAsync(Category.CategoryId);
+        if (GoToDetails.HasDelegate)
+        {
+            await GoToDetails.InvokeAsync(Category.CategoryId);
+        }
+    }
+
+    private string ProgressWidth =>
+        $"{Math.Clamp(Category.Percentage, 0.0, 100.0):0}%";
+
+    private string GetSubProgressWidth(SubCategoryViewModel sub)
+    {
+        return $"{Math.Clamp(sub.Percentage, 0.0, 100.0):0}%";
     }
 }
+
 <style>
-    /* Card container */
     .category-card {
         border-radius: 8px;
         padding: 16px;
-        min-width: 180px;
-        max-width: 220px;
-        background-color: #1e3a8a; /* blue-ish */
+        width: 220px; /* fixed card width so all cards appear the same */
+        height: 360px; /* fixed height to equalize card sizes */
+        box-sizing: border-box;
+        background-color: #1e3a8a;
         color: white;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        transition: transform 0.2s, box-shadow 0.2s;
         cursor: pointer;
         position: relative;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: stretch;
     }
 
-        .category-card.clickable:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.25);
-        }
+.category-card.clickable:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+}
 
-        .category-card.disabled {
-            opacity: 0.5;
-            cursor: default;
-            background-color: #6b7280; /* gray */
-        }
+.category-card.disabled {
+    opacity: 0.5;
+    cursor: default;
+    background-color: #6b7280;
+}
 
+.category-card.disabled::after {
+    content: "🔒";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 50%;
+    padding: 4px 6px;
+    line-height: 1;
+}
 
-        .category-card h4 {
-            margin: 0 0 8px 0;
-            font-size: 1.2rem;
-        }
+.category-card h4 { margin: 0 0 8px 0; font-size: 1.2rem; }
+.category-card p { margin: 0 0 12px 0; color: #e0e0e0; }
 
-        .category-card p {
-            margin: 0 0 12px 0;
-            color: #e0e0e0;
-        }
-
-    .progress-bar-container {
-        background-color: #cbd5e1;
-        border-radius: 10px;
-        height: 16px;
-        width: 100%;
-        overflow: hidden;
-    }
+.progress-bar-container {
+    background-color: #cbd5e1;
+    border-radius: 10px;
+    height: 16px;
+    width: 100%;
+    overflow: hidden;
+}
 
     .progress-bar {
         background-color: #4ade80;
@@ -81,15 +127,46 @@
         border-radius: 10px 0 0 10px;
         transition: width 0.3s ease;
     }
-    .category-card.disabled::after {
-        content: "🔒";
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        font-size: 20px;
-        background: rgba(0, 0, 0, 0.35);
-        border-radius: 50%;
-        padding: 4px 6px;
-        line-height: 1;
-}
+
+    .sub-progress-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 8px;
+        flex: 1 1 auto; /* allow list to take available vertical space */
+        overflow: auto; /* avoid growing card height when many items */
+    }
+
+    .sub-progress-item {
+        display: flex;
+        flex-direction: column;
+        flex: 0 0 auto;
+    }
+
+    .sub-progress-label {
+        font-size: 0.75rem;
+        margin-bottom: 4px;
+        color: #e6eefc;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .progress-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sub-progress-value {
+        min-width: 40px;
+        text-align: right;
+        font-size: 0.75rem;
+        color: #e6eefc;
+    }
+
+    .progress-bar-container.small { height: 12px; border-radius: 8px; }
+    .progress-bar.small { font-size: 0.7rem; line-height: 12px; border-radius: 8px 0 0 8px; }
+    .progress-bar.small.locked { background: linear-gradient(90deg, #d1d5db 0%, #e5e7eb 100%); color: #6b7280; }
+    .sub-progress-lock { margin-left: 8px; }
 </style>

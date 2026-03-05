@@ -1,27 +1,27 @@
 ﻿@page "/categories"
+@rendermode InteractiveServer
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
+
 @inject NavigationManager NavigationManager
+@inject CyberQuiz.Services.CategoryService CategoryService
 @using CyberQuiz.UI.Components.Components
 @using CyberQuiz.UI.ViewModels
-@using CyberQuiz.Services
-@inject CyberQuiz.Services.CategoryService CategoryService
 
-<h2>Categories</h2>
-<CategoryList Categories="@categories" GoToDetails="HandleGoToDetails" />
+
+<CategoryList Categories="@categories" GoToDetails="@HandleGoToDetails" />
 
 @code {
     private List<CategoryProgressViewModel> categories = new();
 
     protected override async Task OnInitializedAsync()
     {
-        // Fetch categories + user progress from your BLL/service
         categories = await CategoryService.GetUserCategoryProgressAsync();
     }
 
-    private void HandleGoToDetails(int categoryId)
+    private Task HandleGoToDetails(int categoryId)
     {
-        // Navigate to SubCategoryPage for selected category
         NavigationManager.NavigateTo($"/subcategory/{categoryId}");
+        return Task.CompletedTask;
     }
-}
+}   

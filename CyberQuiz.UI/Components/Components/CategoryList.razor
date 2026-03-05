@@ -1,6 +1,7 @@
 ﻿@using CyberQuiz.UI.ViewModels
 
-<div class="category-list">
+<div class="category-list-container">
+    <div class="category-list">
     @if (Categories == null || !Categories.Any())
     {
         <p>No categories available</p>
@@ -9,11 +10,11 @@
     {
         @foreach (var category in Categories)
         {
-            <CategoryCard Category="category"
-                          IsEnabled="category.IsUnlocked"
+            <CategoryCard Category="@category"
                           GoToDetails="GoToDetails" />
         }
     }
+    </div>
 </div>
 
 @code {
@@ -22,9 +23,19 @@
 }
 
 <style>
+    .category-list-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - 160px); /* leave room for header/navigation */
+        padding: 1rem;
+    }
+
     .category-list {
         display: flex;
         gap: 16px;
         flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
     }
 </style>

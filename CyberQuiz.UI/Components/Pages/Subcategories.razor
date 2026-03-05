@@ -1,0 +1,66 @@
+﻿@page "/subcategory/{CategoryId:int}"
+@using CyberQuiz.Services
+@using CyberQuiz.UI.ViewModels
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+@inject SubCategoryService SubCategoryService
+
+<h2>Subcategories for Category @CategoryId</h2>
+
+@if (subCategories == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="row">
+        @foreach (var sub in subCategories)
+        {
+            <div class="col-md-6 mb-3">
+                <div class="card @(sub.IsUnlocked ? "" : "disabled")">
+                    <div class="card-body">
+                        <h5>@sub.DifficultyName</h5>
+                        <p>@($"{sub.CorrectAnswers}/{sub.TotalQuestions} correct")</p>
+
+                        <div class="progress mb-2">
+                            <div class="progress-bar" style="width:@sub.Percentage%">
+                                @($"{sub.Percentage:0}%")
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary"
+                                disabled="@( !sub.IsUnlocked )"
+                                @onclick="() => StartQuiz(sub.DifficultyIndex)">
+                            Start Quiz
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public int CategoryId { get; set; }
+    private List<SubCategoryViewModel>? subCategories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        subCategories = await SubCategoryService.GetSubCategoriesAsync(CategoryId);
+    }
+
+    void StartQuiz(int subIndex)
+    {
+        NavigationManager.NavigateTo($"/quiz/{CategoryId}/{subIndex}");
+    }
+}
+
+
+
+<style>
+    .card.disabled {
+        opacity: 0.5;
+        pointer-events: none;
+    }
+</style>

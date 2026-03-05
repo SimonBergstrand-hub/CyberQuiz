@@ -22,8 +22,4 @@
     <ProjectReference Include="..\CyberQuiz.BLL\CyberQuiz.BLL.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Components\Components\" />
-  </ItemGroup>
-
 </Project>
