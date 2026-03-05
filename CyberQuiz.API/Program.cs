@@ -8,6 +8,17 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+
+
+//Kör Seeding + Migrations (Vi måste göra kopplingar först Mellan API lager och DAL)
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+//    var context = services.GetRequiredService<QuizDbContext>();
+
+//    await DatabaseSeeder.SeedAsync(context);
+//}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
