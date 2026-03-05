@@ -49,6 +49,15 @@ namespace CyberQuiz.BLL.Services
 
             if (next == Null) return;
 
+            var unlock = new UserUnlockedSubCategory
+            {
+                UserId = userId,
+                SubCategoryId = next.id
+            };
+
+            _context.Add(unlock);
+            await _context.SaveChangesAsync();
+
 
 
            
