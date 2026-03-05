@@ -1,25 +1,27 @@
-﻿@using CyberQuiz.UI.Components
+﻿@code {
+    [Parameter] public int CorrectAnswers { get; set; }
+    [Parameter] public int TotalQuestions { get; set; }
+    [Parameter] public EventCallback OnBackClicked { get; set; }
+}
+
 <div class="quiz-finished">
     <h2>Quiz Completed</h2>
     <h3>@CorrectAnswers / @TotalQuestions Correct</h3>
-
     @{
         var percent = (double)CorrectAnswers / TotalQuestions * 100;
     }
 
     <div class="progress mt-3 mb-3">
-        <div class="progress-bar" style="width:@($"{percent:0}%")">
-            @($"{percent:0}%")
-        </div>
+        <div class="progress-bar" style="width:@percent%">@($"{percent:0}%")</div>
     </div>
 
-    <button class="btn btn-primary" @onclick="async () => await OnBackClicked.InvokeAsync()">
+    <button class="btn btn-primary" @onclick="() => OnBackClicked.InvokeAsync()">
         Back to Subcategories
     </button>
 </div>
-
-@code {
-    [Parameter] public int CorrectAnswers { get; set; }
-    [Parameter] public int TotalQuestions { get; set; }
-    [Parameter] public EventCallback OnBackClicked { get; set; }
+<style>
+    .quiz-finished {
+        text-align: center;
+    }
+</style>
 }

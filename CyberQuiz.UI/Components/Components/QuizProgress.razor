@@ -1,19 +1,43 @@
-﻿@using CyberQuiz.UI.Components
+﻿@code {
+    [Parameter] public int CurrentIndex { get; set; }
+    [Parameter] public int TotalQuestions { get; set; }
+    [Parameter] public int AnsweredCount { get; set; }
+    [Parameter] public bool Visible { get; set; }
+}
+
 @if (Visible && TotalQuestions > 0)
 {
+    var progress = ((double)AnsweredCount / TotalQuestions) * 100;
+
     <div class="quiz-progress">
-        <div class="quiz-progress-bar" style="width:@Progress%"></div>
+        <!-- ensure the width is emitted correctly by the renderer -->
+        <div class="quiz-progress-bar" style=@($"width:{progress}%")></div>
     </div>
+
     <div class="quiz-counter">
         Question @(CurrentIndex + 1) / @TotalQuestions
     </div>
 }
 
-@code {
-    [Parameter] public int CurrentIndex { get; set; }
-    [Parameter] public int TotalQuestions { get; set; }
-    [Parameter] public int AnsweredCount { get; set; }
-    [Parameter] public bool Visible { get; set; } = true;
+<style>
+    .quiz-progress {
+        height: 10px;
+        background: #374151;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        overflow: hidden;
+    }
 
-    private double Progress => TotalQuestions > 0 ? (double)AnsweredCount / TotalQuestions * 100 : 0;
-}
+    .quiz-progress-bar {
+        height: 100%;
+        background: #22c55e;
+        transition: width 0.4s ease;
+    }
+
+    .quiz-counter {
+        text-align: center;
+        color: #d1d5db;
+        margin-bottom: 15px;
+        font-size: 14px;
+    }
+</style>

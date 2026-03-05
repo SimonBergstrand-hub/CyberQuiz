@@ -1,31 +1,83 @@
 ﻿@using CyberQuiz.UI.ViewModels
-@using CyberQuiz.UI.Components
+@code {
+    [Parameter] public QuizQuestionViewModel Question { get; set; }
+    [Parameter] public EventCallback<int> OnAnswerSelected { get; set; }
+
+    private async Task SelectAnswer(int answerIndex)
+    {
+        await OnAnswerSelected.InvokeAsync(answerIndex);
+    }
+
+    private string GetAnswerClass(int index)
+    {
+        if (!Question.IsAnswered) return "";
+
+        if (index == Question.CorrectAnswerIndex) return "correct";
+        if (index == Question.SelectedAnswerIndex) return "wrong";
+
+        return "";
+    }
+}
+
 <div class="question-card fade-in">
     <h3>@Question.QuestionText</h3>
 
     @for (int i = 0; i < Question.Answers.Count; i++)
     {
         var index = i;
+
         <button class="answer-button @(GetAnswerClass(index))"
-                @onclick="() => OnAnswerSelected.InvokeAsync(index)"
+                @onclick="@(() => SelectAnswer(index))"
                 disabled="@Question.IsAnswered">
             @Question.Answers[i]
         </button>
     }
 </div>
 
-@code {
-    [Parameter] public QuizQuestionViewModel Question { get; set; } = default!;
-    [Parameter] public EventCallback<int> OnAnswerSelected { get; set; }
-
-    private string GetAnswerClass(int index)
-    {
-        if (!Question.IsAnswered)
-            return "";
-        if (index == Question.CorrectAnswerIndex)
-            return "correct";
-        if (index == Question.SelectedAnswerIndex)
-            return "wrong";
-        return "";
+<style>
+    .question-card {
+        animation: fadeIn 0.3s ease;
     }
-}
+
+    /* markup uses class "fade-in" — make sure it triggers the same animation */
+    .fade-in {
+        animation: fadeIn 0.3s ease;
+    }
+
+    .answer-button {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 12px;
+        border-radius: 6px;
+        border: none;
+        background: #374151;
+        color: white;
+        transition: all 0.2s ease;
+    }
+
+    .answer-button:hover {
+        background: #4b5563;
+    }
+
+    .answer-button.correct {
+        background: #22c55e;
+    }
+
+    .answer-button.wrong {
+        background: #ef4444;
+    }
+
+    /* escaped keyframes below */
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
