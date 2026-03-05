@@ -8,7 +8,7 @@ namespace CyberQuiz.BLL.Interfaces
     public interface IQuizService
     {
 
-        Task<bool> SubmitAnswer(int userId, int questionId, int answerOptionId);
+       // Task<bool> SubmitAnswer(int userId, int questionId, int answerOptionId);
 
         Task<List<QuestionDTO>> GetQuestionsForSubCategory(int subcategoryId);
 
