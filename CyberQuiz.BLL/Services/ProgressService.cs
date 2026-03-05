@@ -7,7 +7,7 @@ namespace CyberQuiz.BLL.Services
 {
     internal class ProgressService : IProgressService
     {
-        //private readonly CyberQuizDbContext _context;
+        private readonly CyberQuizDbContext _context;
 
         //räknar ut procent
 
@@ -48,6 +48,8 @@ namespace CyberQuiz.BLL.Services
                 .FirstOrDefaultAsync();
 
             if (next == Null) return;
+
+            //skapar och sparar att användaren har låst upp subkategorin
 
             var unlock = new UserUnlockedSubCategory
             {
