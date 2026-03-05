@@ -1,0 +1,206 @@
+﻿@page "/quiz/{CategoryId:int}/{DifficultyIndex:int}"
+@using CyberQuiz.Services
+@using CyberQuiz.UI.ViewModels
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+@inject QuizService QuizService
+@inject NavigationManager NavigationManager
+
+<div class="quiz-container">
+
+    <!-- TOP PROGRESS BAR -->
+
+    @if (!quizFinished && questions.Count > 0)
+    {
+        var progress = ((double)(questions.Count(q => q.IsAnswered)) / questions.Count) * 100;
+
+        <div class="quiz-progress">
+            <div class="quiz-progress-bar" style="width:@progress%"></div>
+        </div>
+
+        <div class="quiz-counter">
+            Question @(currentIndex + 1) / @questions.Count
+        </div>
+    }
+
+    <div class="quiz-layout">
+
+        <!-- LEFT QUESTION LIST -->
+
+        <div class="question-sidebar">
+
+            @for (int i = 0; i < questions.Count; i++)
+            {
+                var q = questions[i];
+
+                <div class="question-indicator @(GetIndicatorClass(q))"
+                     @onclick="() => currentIndex = i">
+
+                    Question @(i + 1)
+
+                    @if (q.IsAnswered)
+                    {
+                        <span>@(q.IsCorrect ? "✔" : "✖")</span>
+                    }
+
+                </div>
+            }
+
+        </div>
+
+
+        <!-- MAIN QUESTION AREA -->
+
+        <div class="quiz-main">
+
+            @if (quizFinished)
+            {
+                <div class="quiz-finished">
+
+                    <h2>Quiz Completed</h2>
+
+                    <h3>@correctAnswers / @questions.Count Correct</h3>
+
+                    @{
+                        var percent = (double)correctAnswers / questions.Count * 100;
+                    }
+
+                    <div class="progress mt-3 mb-3">
+                        <div class="progress-bar"
+                             style="width:@percent%">
+                            @($"{percent:0}%")
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary"
+                            @onclick="ReturnToSubcategory">
+                        Back to Subcategories
+                    </button>
+
+                </div>
+            }
+
+            else if (currentQuestion != null)
+            {
+                <div class="question-card fade-in">
+
+                    <h3>@currentQuestion.QuestionText</h3>
+
+                    @for (int i = 0; i < currentQuestion.Answers.Count; i++)
+                    {
+                        var index = i;
+
+                        <button class="answer-button @(GetAnswerClass(index))"
+                                @onclick="async () => await SelectAnswer(index)"
+                                disabled="@currentQuestion.IsAnswered">
+
+                            @currentQuestion.Answers[i]
+
+                        </button>
+                    }
+
+                </div>
+            }
+
+        </div>
+
+    </div>
+
+</div>
+
+
+@code {
+
+    [Parameter] public int CategoryId { get; set; }
+    [Parameter] public int DifficultyIndex { get; set; }
+
+    private List<QuizQuestionViewModel> questions = new();
+
+    private int currentIndex = 0;
+
+    private QuizQuestionViewModel? currentQuestion =>
+        questions.ElementAtOrDefault(currentIndex);
+
+    private bool quizFinished = false;
+
+    private int correctAnswers = 0;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        questions = await QuizService.GetQuizQuestions(CategoryId, DifficultyIndex);
+    }
+
+
+    async Task SelectAnswer(int answerIndex)
+    {
+        if (currentQuestion == null)
+            return;
+
+        if (currentQuestion.IsAnswered)
+            return;
+
+        currentQuestion.SelectedAnswerIndex = answerIndex;
+
+        if (currentQuestion.IsCorrect)
+            correctAnswers++;
+
+        CheckQuizCompletion();
+
+        StateHasChanged();
+
+        await Task.Delay(800);
+
+        if (!quizFinished && currentIndex < questions.Count - 1)
+        {
+            currentIndex++;
+        }
+    }
+
+
+    void CheckQuizCompletion()
+    {
+        if (questions.All(q => q.IsAnswered))
+        {
+            quizFinished = true;
+        }
+    }
+
+
+    void ReturnToSubcategory()
+    {
+        NavigationManager.NavigateTo($"/subcategory/{CategoryId}");
+    }
+
+
+    string GetIndicatorClass(QuizQuestionViewModel q)
+    {
+        if (!q.IsAnswered)
+            return "";
+
+        return q.IsCorrect ? "correct" : "wrong";
+    }
+
+
+    string GetAnswerClass(int index)
+    {
+        if (currentQuestion == null)
+            return "";
+
+        if (!currentQuestion.IsAnswered)
+            return "";
+
+        if (index == currentQuestion.CorrectAnswerIndex)
+            return "correct";
+
+        if (index == currentQuestion.SelectedAnswerIndex)
+            return "wrong";
+
+        return "";
+    }
+
+}
+
+

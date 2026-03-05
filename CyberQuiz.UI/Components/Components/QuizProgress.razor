@@ -1,0 +1,19 @@
+﻿@using CyberQuiz.UI.Components
+@if (Visible && TotalQuestions > 0)
+{
+    <div class="quiz-progress">
+        <div class="quiz-progress-bar" style="width:@Progress%"></div>
+    </div>
+    <div class="quiz-counter">
+        Question @(CurrentIndex + 1) / @TotalQuestions
+    </div>
+}
+
+@code {
+    [Parameter] public int CurrentIndex { get; set; }
+    [Parameter] public int TotalQuestions { get; set; }
+    [Parameter] public int AnsweredCount { get; set; }
+    [Parameter] public bool Visible { get; set; } = true;
+
+    private double Progress => TotalQuestions > 0 ? (double)AnsweredCount / TotalQuestions * 100 : 0;
+}

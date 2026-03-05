@@ -1,0 +1,31 @@
+﻿@using CyberQuiz.UI.ViewModels
+@using CyberQuiz.UI.Components
+<div class="question-card fade-in">
+    <h3>@Question.QuestionText</h3>
+
+    @for (int i = 0; i < Question.Answers.Count; i++)
+    {
+        var index = i;
+        <button class="answer-button @(GetAnswerClass(index))"
+                @onclick="() => OnAnswerSelected.InvokeAsync(index)"
+                disabled="@Question.IsAnswered">
+            @Question.Answers[i]
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter] public QuizQuestionViewModel Question { get; set; } = default!;
+    [Parameter] public EventCallback<int> OnAnswerSelected { get; set; }
+
+    private string GetAnswerClass(int index)
+    {
+        if (!Question.IsAnswered)
+            return "";
+        if (index == Question.CorrectAnswerIndex)
+            return "correct";
+        if (index == Question.SelectedAnswerIndex)
+            return "wrong";
+        return "";
+    }
+}
