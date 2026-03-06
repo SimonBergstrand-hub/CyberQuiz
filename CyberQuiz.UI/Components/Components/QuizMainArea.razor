@@ -1,0 +1,36 @@
+@using CyberQuiz.UI.ViewModels
+
+@code {
+    [Parameter] public QuizQuestionViewModel? CurrentQuestion { get; set; }
+    [Parameter] public bool QuizFinished { get; set; }
+    [Parameter] public int CorrectAnswers { get; set; }
+    [Parameter] public int QuestionsCount { get; set; }
+    [Parameter] public EventCallback<int> OnAnswerSelected { get; set; }
+    [Parameter] public EventCallback OnBackClicked { get; set; }
+}
+
+@if (QuizFinished)
+{
+    <QuizFinished CorrectAnswers="@CorrectAnswers"
+                  TotalQuestions="@QuestionsCount"
+                  OnBackClicked="@OnBackClicked" />
+}
+else if (CurrentQuestion != null)
+{
+    <QuestionCard Question="@CurrentQuestion"
+                  OnAnswerSelected="@OnAnswerSelected" />
+}
+
+<style>
+    .quiz-main {
+        flex: 1;
+        background: #1f2937;
+        padding: 30px;
+        border-radius: 10px;
+        color: white;
+    }
+
+    .quiz-finished {
+        text-align: center;
+    }
+</style>

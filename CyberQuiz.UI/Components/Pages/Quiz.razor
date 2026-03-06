@@ -1,0 +1,127 @@
+﻿@page "/quiz/{CategoryId:int}/{DifficultyIndex:int}"
+@using CyberQuiz.Services
+@using CyberQuiz.UI.ViewModels
+@using CyberQuiz.Models
+@using Microsoft.AspNetCore.Authorization
+@using CyberQuiz.UI.Components.Components
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+@inject QuizService QuizService
+@inject QuizProgressService ProgressService   // ADDED
+@inject NavigationManager NavigationManager
+
+<div class="quiz-container">
+    <QuizProgress CurrentIndex="@currentIndex"
+                  TotalQuestions="@questions.Count"
+                  AnsweredCount="@questions.Count(q => q.IsAnswered)"
+                  Visible="!quizFinished" />
+
+    <div class="quiz-layout">
+        <QuestionList Questions="@questions"
+                      CurrentIndex="@currentIndex"
+                      OnSelectQuestion="HandleSelectQuestion" />
+
+        <div class="quiz-main-area">
+            <QuizMainArea CurrentQuestion="@currentQuestion"
+                          QuizFinished="@quizFinished"
+                          CorrectAnswers="@correctAnswers"
+                          QuestionsCount="@questions.Count"
+                          OnAnswerSelected="HandleAnswerSelected"
+                          OnBackClicked="ReturnToSubcategory" />
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int CategoryId { get; set; }
+    [Parameter] public int DifficultyIndex { get; set; }
+
+    private List<QuizQuestionViewModel> questions = new();
+    private int currentIndex = 0;
+
+    private QuizQuestionViewModel? currentQuestion =>
+        questions.ElementAtOrDefault(currentIndex);
+
+    private bool quizFinished = false;
+
+    private int correctAnswers = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        questions = await QuizService.GetQuizQuestions(CategoryId, DifficultyIndex);
+    }
+
+    async Task HandleAnswerSelected(int answerIndex)
+    {
+        await SelectAnswer(answerIndex);
+    }
+
+    void HandleSelectQuestion(int index)
+    {
+        currentIndex = index;
+        StateHasChanged();
+    }
+
+    async Task SelectAnswer(int answerIndex)
+    {
+        if (currentQuestion == null || currentQuestion.IsAnswered)
+            return;
+
+        currentQuestion.SelectedAnswerIndex = answerIndex;
+
+        if (currentQuestion.IsCorrect)
+            correctAnswers++;
+
+        await CheckQuizCompletion(); // CHANGED (async now)
+
+        StateHasChanged();
+
+        await Task.Delay(800);
+
+        if (!quizFinished && currentIndex < questions.Count - 1)
+        {
+            currentIndex++;
+        }
+    }
+
+    async Task CheckQuizCompletion() // CHANGED to async
+    {
+        if (questions.All(q => q.IsAnswered))
+        {
+            quizFinished = true;
+
+            // SAVE RESULT (ADDED)
+            await ProgressService.SaveResultAsync(new QuizResult
+            {
+                CategoryId = CategoryId,
+                DifficultyIndex = DifficultyIndex,
+                Score = correctAnswers,
+                TotalQuestions = questions.Count,
+                CompletedAt = DateTime.UtcNow
+            });
+        }
+    }
+
+    void ReturnToSubcategory()
+    {
+        NavigationManager.NavigateTo($"/subcategory/{CategoryId}");
+    }
+}
+
+<style>
+    .quiz-container {
+        max-width: 1100px;
+        margin: auto;
+    }
+
+    .quiz-layout {
+        display: flex;
+        gap: 30px;
+    }
+
+    .quiz-main-area {
+        flex: 1;
+        min-height: 420px;
+    }
+</style>

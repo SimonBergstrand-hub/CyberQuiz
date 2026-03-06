@@ -1,0 +1,77 @@
+﻿@using CyberQuiz.UI.ViewModels
+
+@code {
+    [Parameter] public List<QuizQuestionViewModel> Questions { get; set; }
+    [Parameter] public int CurrentIndex { get; set; }
+    [Parameter] public EventCallback<int> OnSelectQuestion { get; set; }
+
+    private void SelectQuestion(int index)
+    {
+        OnSelectQuestion.InvokeAsync(index);
+    }
+
+    private string GetIndicatorClass(QuizQuestionViewModel q, int index)
+    {
+        if (index == CurrentIndex)
+            return "current";
+
+        if (!q.IsAnswered)
+            return "unanswered";
+
+        return q.IsCorrect ? "correct" : "wrong";
+    }
+}
+
+<div class="question-sidebar">
+
+    @for (int i = 0; i < Questions.Count; i++)
+    {
+        var q = Questions[i];
+
+        <div class="question-dot @(GetIndicatorClass(q, i))"
+             @onclick="() => SelectQuestion(i)">
+        </div>
+    }
+
+</div>
+
+<style>
+
+    .question-sidebar {
+        width: 80px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-content: flex-start;
+    }
+
+    .question-dot {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #374151;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+
+        .question-dot:hover {
+            transform: scale(1.1);
+        }
+
+        .question-dot.current {
+            border: 3px solid #3b82f6;
+        }
+
+        .question-dot.correct {
+            background: #22c55e;
+        }
+
+        .question-dot.wrong {
+            background: #ef4444;
+        }
+
+        .question-dot.unanswered {
+            background: #374151;
+        }
+
+</style>

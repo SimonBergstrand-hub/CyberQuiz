@@ -17,6 +17,8 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScoped<SubCategoryService>();
+builder.Services.AddScoped<QuizService>();
+builder.Services.AddSingleton<QuizProgressService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CategoryService>();

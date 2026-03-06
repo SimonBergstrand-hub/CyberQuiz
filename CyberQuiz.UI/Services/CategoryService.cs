@@ -42,6 +42,8 @@ namespace CyberQuiz.Services
                 var subcategories =
                     await _subCategoryService.GetSubCategoriesAsync(category.CategoryId);
 
+                // SubCategoryService already applies any saved results and unlock logic,
+                // so just use the returned values directly.
                 category.TotalQuestions = subcategories.Sum(s => s.TotalQuestions);
                 category.CorrectAnswers = subcategories.Sum(s => s.CorrectAnswers);
                 category.SubCategories = subcategories;
