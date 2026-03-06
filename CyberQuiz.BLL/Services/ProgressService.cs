@@ -53,34 +53,35 @@ namespace CyberQuiz.BLL.Services
         }
 
         // låser upp nästa subkategori(om det finns)
-        public async Task UnlockNextSubCategory(string userId, int currentSubCategoryId)
+        public async Task<List<SubCategoryStatusDto>> GetSubCategoriesWithStatusAsync(int categoryId, string userId)
         {
-            var current = await _context.SubCategories
-                .FirstOrDefaultAsync(s => s.Id == currentSubCategoryId);
+            var subCategories = await _context.SubCategories
+                .Where(sc => sc.CategoryId == categoryId)
+                .OrderBy(sc => sc.Order)
+                .ToListAsync();
 
-            if (current == null) return;
+            var result = new List<SubCategoryStatusDto>();
 
-            var next = await _context.SubCategories
-                .Where(s => s.CategoryId == current.CategoryId && s.Order > current.Order)
-                .OrderBy(s => s.Order)
-                .FirstOrDefaultAsync();
+            bool previousLevelCleared = true;
 
-            if (next == null) return;
-
-            //skapar och sparar att användaren har låst upp subkategorin
-
-            var unlock = new UserUnlockedSubCategory
+            foreach (var sc in subCategories)
             {
-                UserId = userId,
-                SubCategoryId = next.Id
-            };
+                var percentage = await CalculateScorePercentage(userId, sc.Id);
 
-            _context.Add(unlock);
-            await _context.SaveChangesAsync();
+                var status = new SubCategoryStatusDto
+                {
+                    SubCategoryId = sc.Id,
+                    Name = sc.Name,
+                    Percentage = percentage,
+                    IsLocked = !previousLevelCleared
+                };
 
+                previousLevelCleared = percentage >= 80;
 
+                result.Add(status);
+            }
 
-           
+            return result;
         }
     }
 
