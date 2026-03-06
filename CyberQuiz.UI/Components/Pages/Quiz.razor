@@ -10,7 +10,6 @@
 @inject NavigationManager NavigationManager
 
 <div class="quiz-container">
-    <!-- Progress Bar Component -->
     <QuizProgress 
         CurrentIndex="@currentIndex" 
         TotalQuestions="@questions.Count" 
@@ -18,19 +17,19 @@
         Visible="!quizFinished" />
 
     <div class="quiz-layout">
-        <!-- Question List Component -->
         <QuestionList 
             Questions="@questions" 
             CurrentIndex="@currentIndex" 
             OnSelectQuestion="HandleSelectQuestion" />
 
-        <!-- Main Quiz Area Component -->
-        <QuizMainArea 
-            CurrentQuestion="@currentQuestion" 
-            QuizFinished="@quizFinished" 
-            CorrectAnswers="@correctAnswers" 
-            OnAnswerSelected="HandleAnswerSelected" 
-            OnBackClicked="ReturnToSubcategory" />
+        <div class="quiz-main-area">
+            <QuizMainArea CurrentQuestion="@currentQuestion"
+                          QuizFinished="@quizFinished"
+                          CorrectAnswers="@correctAnswers"
+                          QuestionsCount="@questions.Count"
+                          OnAnswerSelected="HandleAnswerSelected"
+                          OnBackClicked="ReturnToSubcategory" />
+        </div>
     </div>
 </div>
 
@@ -104,5 +103,10 @@
     .quiz-layout {
         display: flex;
         gap: 30px;
+    }
+
+    .quiz-main-area {
+        flex: 1;
+        min-height: 420px;
     }
 </style>

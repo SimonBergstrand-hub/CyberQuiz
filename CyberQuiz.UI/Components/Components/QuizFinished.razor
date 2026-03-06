@@ -2,26 +2,99 @@
     [Parameter] public int CorrectAnswers { get; set; }
     [Parameter] public int TotalQuestions { get; set; }
     [Parameter] public EventCallback OnBackClicked { get; set; }
+
+    int XP => CorrectAnswers * 25;
 }
 
-<div class="quiz-finished">
-    <h2>Quiz Completed</h2>
-    <h3>@CorrectAnswers / @TotalQuestions Correct</h3>
+<div class="quiz-finished-card">
+
+    <h1 class="finish-title">
+        Quiz Completed
+    </h1>
+
+    <div class="score">
+        @CorrectAnswers / @TotalQuestions
+    </div>
+
     @{
         var percent = (double)CorrectAnswers / TotalQuestions * 100;
     }
 
-    <div class="progress mt-3 mb-3">
-        <div class="progress-bar" style="width:@percent%">@($"{percent:0}%")</div>
+    <div class="finish-progress">
+
+        <div class="finish-progress-bar"
+             style="width:@percent%">
+        </div>
+
     </div>
 
-    <button class="btn btn-primary" @onclick="() => OnBackClicked.InvokeAsync()">
-        Back to Subcategories
+    <div class="xp-reward">
+        +@XP XP
+    </div>
+
+    <button class="finish-button"
+            @onclick="() => OnBackClicked.InvokeAsync()">
+
+        Back to Categories
+
     </button>
+
 </div>
+
 <style>
-    .quiz-finished {
+
+    .quiz-finished-card {
+        background: #1f2937;
+        padding: 40px;
+        border-radius: 16px;
         text-align: center;
+        color: white;
+        box-shadow: 0 10px 25px rgba(0,0,0,.4);
     }
+
+    .finish-title {
+        font-size: 32px;
+        margin-bottom: 10px;
+    }
+
+    .score {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .finish-progress {
+        height: 16px;
+        background: #374151;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+
+    .finish-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg,#22c55e,#4ade80);
+    }
+
+    .xp-reward {
+        font-size: 24px;
+        font-weight: 600;
+        color: #4ade80;
+        margin-bottom: 25px;
+    }
+
+    .finish-button {
+        padding: 12px 22px;
+        border: none;
+        border-radius: 8px;
+        background: #2563eb;
+        color: white;
+        font-size: 16px;
+        transition: .2s;
+    }
+
+        .finish-button:hover {
+            background: #1d4ed8;
+        }
+
 </style>
-}

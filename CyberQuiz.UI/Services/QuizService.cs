@@ -18,10 +18,10 @@ namespace CyberQuiz.Services
                     QuestionText = $"Question {i} for category {categoryId}",
                     Answers = new List<string>
                     {
-                        "Answer A",
-                        "Answer B",
-                        "Answer C",
-                        "Answer D"
+                        "Answer A but a lot longer so I can see if this layout works when the answers are very long because it would be good to have a dynamic layout",
+                        "Answer B but a lot longer so I can see if this layout works when the answers are very long because it would be good to have a dynamic layout",
+                        "Answer C but a lot longer so I can see if this layout works when the answers are very long because it would be good to have a dynamic layout",
+                        "Answer D but a lot longer so I can see if this layout works when the answers are very long because it would be good to have a dynamic layout"
                     },
                     //CorrectAnswerIndex = Random.Shared.Next(0, 4)
                     CorrectAnswerIndex = 0
