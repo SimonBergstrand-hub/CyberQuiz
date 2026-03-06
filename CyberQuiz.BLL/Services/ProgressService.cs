@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using CyberQuiz.DAL.Quiz;
 using Microsoft.EntityFrameworkCore;
+using CyberQuiz.BLL.DTOs;
 
 namespace CyberQuiz.BLL.Services
 {
@@ -18,7 +19,7 @@ namespace CyberQuiz.BLL.Services
             _context = context;
         }
 
-        int num = 1;
+        
         
 
         //räknar ut procent
