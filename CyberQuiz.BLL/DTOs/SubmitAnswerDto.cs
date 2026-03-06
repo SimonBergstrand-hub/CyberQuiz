@@ -6,7 +6,7 @@ namespace CyberQuiz.BLL.DTOs
 {
     public class SubmitAnswerDto
     {
-        public int QuestinId { get; set; }
+        public int QuestionId { get; set; }
         public int AnswerOptionId { get; set; }
     }
 }

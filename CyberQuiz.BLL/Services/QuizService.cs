@@ -46,7 +46,7 @@ namespace CyberQuiz.BLL.Services
             //Frågan sparas i var question
             var question = await _context.Questions
                 .Include(q => q.AnswerOptions)
-                .FirstOrDefaultAsync(q => q.Id == dto.QuestinId);
+                .FirstOrDefaultAsync(q => q.Id == dto.QuestionId);
 
             if (question == null)
                 return false;
@@ -67,10 +67,7 @@ namespace CyberQuiz.BLL.Services
             _context.UserResults.Add(result);
             await _context.SaveChangesAsync();
 
-            if(await _progressService.HasPassedSubCategory(userId, question.SubCategoryId))
-            {
-                await _progressService.UnlockNextSubCategory(userId, question.SubCategoryId);
-            }
+           
 
             return isCorrect;
 
