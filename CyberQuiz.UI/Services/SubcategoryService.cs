@@ -7,18 +7,28 @@ namespace CyberQuiz.Services
 {
     public class SubCategoryService
     {
+        // Event raised when progress changes (for example when a quiz result is saved)
+        public event Action? ResultSaved;
+
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly QuizProgressService _progressService;
 
         private readonly string[] _difficulties =
             { "Beginner", "Intermediate", "Advanced", "Expert" };
 
         public SubCategoryService(
             UserManager<ApplicationUser> userManager,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            QuizProgressService progressService)
         {
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
+            _progressService = progressService;
+
+            // Forward progress service notifications so consumers of SubCategoryService
+            // don't need to know about the underlying progress storage implementation.
+            _progressService.ResultSaved += () => ResultSaved?.Invoke();
         }
 
         public async Task<List<SubCategoryViewModel>> GetSubCategoriesAsync(int categoryId)
@@ -72,6 +82,25 @@ namespace CyberQuiz.Services
                 });
 
                 previousScore = correctAnswers;
+            }
+
+            // If we have saved results in the (dummy) database, use them to override
+            // the generated deterministic values so progress is preserved across quizzes.
+            for (int i = 0; i < result.Count; i++)
+            {
+                var saved = await _progressService.GetResultAsync(categoryId, i);
+                if (saved != null)
+                {
+                    // Apply saved result
+                    result[i].CorrectAnswers = saved.Score;
+                    result[i].TotalQuestions = saved.TotalQuestions;
+
+                    try
+                    {
+                        Console.WriteLine($"[SubCategoryService] Applied saved result for Category={categoryId} Difficulty={i} Score={saved.Score} CompletedAt={saved.CompletedAt}");
+                    }
+                    catch { }
+                }
             }
 
             // Unlock logic

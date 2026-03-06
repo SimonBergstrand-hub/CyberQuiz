@@ -1,26 +1,26 @@
 ﻿@page "/quiz/{CategoryId:int}/{DifficultyIndex:int}"
 @using CyberQuiz.Services
 @using CyberQuiz.UI.ViewModels
+@using CyberQuiz.Models
 @using Microsoft.AspNetCore.Authorization
 @using CyberQuiz.UI.Components.Components
 @attribute [Authorize]
 @rendermode InteractiveServer
 
 @inject QuizService QuizService
+@inject QuizProgressService ProgressService   // ADDED
 @inject NavigationManager NavigationManager
 
 <div class="quiz-container">
-    <QuizProgress 
-        CurrentIndex="@currentIndex" 
-        TotalQuestions="@questions.Count" 
-        AnsweredCount="@questions.Count(q => q.IsAnswered)" 
-        Visible="!quizFinished" />
+    <QuizProgress CurrentIndex="@currentIndex"
+                  TotalQuestions="@questions.Count"
+                  AnsweredCount="@questions.Count(q => q.IsAnswered)"
+                  Visible="!quizFinished" />
 
     <div class="quiz-layout">
-        <QuestionList 
-            Questions="@questions" 
-            CurrentIndex="@currentIndex" 
-            OnSelectQuestion="HandleSelectQuestion" />
+        <QuestionList Questions="@questions"
+                      CurrentIndex="@currentIndex"
+                      OnSelectQuestion="HandleSelectQuestion" />
 
         <div class="quiz-main-area">
             <QuizMainArea CurrentQuestion="@currentQuestion"
@@ -39,8 +39,12 @@
 
     private List<QuizQuestionViewModel> questions = new();
     private int currentIndex = 0;
-    private QuizQuestionViewModel? currentQuestion => questions.ElementAtOrDefault(currentIndex);
+
+    private QuizQuestionViewModel? currentQuestion =>
+        questions.ElementAtOrDefault(currentIndex);
+
     private bool quizFinished = false;
+
     private int correctAnswers = 0;
 
     protected override async Task OnInitializedAsync()
@@ -69,7 +73,8 @@
         if (currentQuestion.IsCorrect)
             correctAnswers++;
 
-        CheckQuizCompletion();
+        await CheckQuizCompletion(); // CHANGED (async now)
+
         StateHasChanged();
 
         await Task.Delay(800);
@@ -80,11 +85,21 @@
         }
     }
 
-    void CheckQuizCompletion()
+    async Task CheckQuizCompletion() // CHANGED to async
     {
         if (questions.All(q => q.IsAnswered))
         {
             quizFinished = true;
+
+            // SAVE RESULT (ADDED)
+            await ProgressService.SaveResultAsync(new QuizResult
+            {
+                CategoryId = CategoryId,
+                DifficultyIndex = DifficultyIndex,
+                Score = correctAnswers,
+                TotalQuestions = questions.Count,
+                CompletedAt = DateTime.UtcNow
+            });
         }
     }
 
