@@ -53,7 +53,7 @@ namespace CyberQuiz.BLL.Services
             return percentage >= 80;
         }
 
-        // låser upp nästa subkategori(om det finns)
+        // Kollar status på subkategorier
         public async Task<List<SubCategoryStatusDto>> GetSubCategoriesWithStatusAsync(int categoryId, string userId)
         {
             var subCategories = await _context.SubCategories
