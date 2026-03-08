@@ -1,12 +1,8 @@
-﻿using System;
+﻿using CyberQuiz.BLL.DTOs;
 using CyberQuiz.BLL.Interfaces;
-using CyberQuiz.DAL;
-
-using System.Collections.Generic;
-using System.Text;
-using CyberQuiz.DAL.Quiz;
+using CyberQuiz.DAL.Data;
 using Microsoft.EntityFrameworkCore;
-using CyberQuiz.BLL.DTOs;
+
 
 namespace CyberQuiz.BLL.Services
 {
@@ -19,64 +15,66 @@ namespace CyberQuiz.BLL.Services
             _context = context;
         }
 
-        
-        
-
-        //räknar ut procent
-        
+        // Räknar ut procent för en specifik subkategori
         public async Task<double> CalculateScorePercentage(string userId, int subCategoryId)
         {
             var totalQuestions = await _context.Questions
                 .CountAsync(q => q.SubCategoryId == subCategoryId);
 
-            var correctAnswers = await (from ur in _context.UserResults
-                                        join q in _context.Questions
-                                            on ur.QuestionId equals q.Id
-                                        where ur.UserId == userId &&
-                                              q.SubCategoryId == subCategoryId &&
-                                              ur.IsCorrect
-                                        select ur)
-                                        .CountAsync();
-                            
+            if (totalQuestions == 0) return 0;
 
-            if (totalQuestions == 0)
-                return 0;
+            // Enklare sätt att räkna rätta svar utan manuell join om relationer finns
+            var correctAnswers = await _context.UserResults
+                .CountAsync(ur => ur.UserId == userId &&
+                                  ur.SubCategoryId == subCategoryId &&
+                                  ur.IsCorrect);
 
             return (double)correctAnswers / totalQuestions * 100;
         }
 
-        //kollar om procent >80
-
+        // Kollar om användaren har nått 80%
         public async Task<bool> HasPassedSubCategory(string userId, int subCategoryId)
         {
             var percentage = await CalculateScorePercentage(userId, subCategoryId);
             return percentage >= 80;
         }
 
-        // Kollar status på subkategorier
+        // Hämtar alla subkategorier med status
         public async Task<List<SubCategoryDto>> GetSubCategoriesWithStatusAsync(int categoryId, string userId)
         {
+            // Hämta allt i ett anrop för att undvika "N+1"-problem i databasen
             var subCategories = await _context.SubCategories
                 .Where(sc => sc.CategoryId == categoryId)
                 .OrderBy(sc => sc.Order)
+                .Include(sc => sc.Questions)
+                .ToListAsync();
+
+            // Hämta användarens alla resultat för denna kategori en gång
+            var userResults = await _context.UserResults
+                .Where(ur => ur.UserId == userId)
                 .ToListAsync();
 
             var result = new List<SubCategoryDto>();
-
-            bool previousLevelCleared = true;
+            bool previousLevelCleared = true; // Första nivån är alltid upplåst
 
             foreach (var sc in subCategories)
             {
-                var percentage = await CalculateScorePercentage(userId, sc.Id);
+                int totalQ = sc.Questions.Count;
+                int correctQ = userResults.Count(ur => ur.SubCategoryId == sc.Id && ur.IsCorrect);
 
+                double percentage = totalQ > 0 ? (double)correctQ / totalQ * 100 : 0;
+
+                // Skapa DTO baserat på din tidigare struktur
                 var status = new SubCategoryDto
                 {
-                    SubCategoryId = sc.Id,
+                    Id = sc.Id,           // Ändrat från SubCategoryId till Id för att matcha DTO
                     Name = sc.Name,
-                    Percentage = percentage,
+                    Order = sc.Order,
+                    QuestionCount = totalQ,
                     IsLocked = !previousLevelCleared
                 };
 
+                // Uppdatera status inför nästa nivå i loopen
                 previousLevelCleared = percentage >= 80;
 
                 result.Add(status);
@@ -85,6 +83,4 @@ namespace CyberQuiz.BLL.Services
             return result;
         }
     }
-
-   
 }
