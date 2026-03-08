@@ -10,7 +10,7 @@ using CyberQuiz.BLL.DTOs;
 
 namespace CyberQuiz.BLL.Services
 {
-    internal class ProgressService : IProgressService
+    public class ProgressService : IProgressService
     {
         private readonly QuizDbContext _context;
 
@@ -54,14 +54,14 @@ namespace CyberQuiz.BLL.Services
         }
 
         // Kollar status på subkategorier
-        public async Task<List<SubCategoryStatusDto>> GetSubCategoriesWithStatusAsync(int categoryId, string userId)
+        public async Task<List<SubCategoryDto>> GetSubCategoriesWithStatusAsync(int categoryId, string userId)
         {
             var subCategories = await _context.SubCategories
                 .Where(sc => sc.CategoryId == categoryId)
                 .OrderBy(sc => sc.Order)
                 .ToListAsync();
 
-            var result = new List<SubCategoryStatusDto>();
+            var result = new List<SubCategoryDto>();
 
             bool previousLevelCleared = true;
 
@@ -69,7 +69,7 @@ namespace CyberQuiz.BLL.Services
             {
                 var percentage = await CalculateScorePercentage(userId, sc.Id);
 
-                var status = new SubCategoryStatusDto
+                var status = new SubCategoryDto
                 {
                     SubCategoryId = sc.Id,
                     Name = sc.Name,

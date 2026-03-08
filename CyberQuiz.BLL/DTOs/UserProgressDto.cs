@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CyberQuiz.BLL.DTOs
 {
-    internal class UserProgressDto
+    public class UserProgressDto
     {
         public int SubCategoryId { get; set; }
         public double Percentage { get; set; }
