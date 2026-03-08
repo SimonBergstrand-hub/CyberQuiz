@@ -11,6 +11,6 @@ namespace CyberQuiz.BLL.Interfaces
 
         Task<bool> HasPassedSubCategory(string userId, int subCategoryId);
 
-        Task<List<SubCategoryStatusDto>> GetSubCategoriesWithStatusAsync(int categoryId, string userId);
+        Task<List<SubCategoryDto>> GetSubCategoriesWithStatusAsync(int categoryId, string userId);
     }
 }
