@@ -1,14 +1,14 @@
 ﻿@page "/quiz/{CategoryId:int}/{DifficultyIndex:int}"
 @using CyberQuiz.Services
+@using CyberQuiz.UI.Components.Components.Quiz
 @using CyberQuiz.UI.ViewModels
 @using CyberQuiz.Models
 @using Microsoft.AspNetCore.Authorization
-@using CyberQuiz.UI.Components.Components
 @attribute [Authorize]
 @rendermode InteractiveServer
 
 @inject QuizService QuizService
-@inject QuizProgressService ProgressService   // ADDED
+@inject QuizProgressService ProgressService
 @inject NavigationManager NavigationManager
 
 <div class="quiz-container">
@@ -73,7 +73,7 @@
         if (currentQuestion.IsCorrect)
             correctAnswers++;
 
-        await CheckQuizCompletion(); // CHANGED (async now)
+        await CheckQuizCompletion();
 
         StateHasChanged();
 
@@ -85,13 +85,13 @@
         }
     }
 
-    async Task CheckQuizCompletion() // CHANGED to async
+    async Task CheckQuizCompletion()
     {
         if (questions.All(q => q.IsAnswered))
         {
             quizFinished = true;
 
-            // SAVE RESULT (ADDED)
+
             await ProgressService.SaveResultAsync(new QuizResult
             {
                 CategoryId = CategoryId,

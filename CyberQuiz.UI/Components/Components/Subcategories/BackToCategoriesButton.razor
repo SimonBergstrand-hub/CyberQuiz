@@ -1,0 +1,36 @@
+﻿@inject NavigationManager NavigationManager
+
+<button class="start-button"
+        @onclick="NavigateBack">
+
+    ← Back to Categories
+
+</button>
+
+@code {
+
+    [Parameter] public EventCallback<int> OnNavigateBack { get; set; }
+
+    private async Task NavigateBack()
+    {
+        await OnNavigateBack.InvokeAsync();
+    }
+
+}
+
+<style>
+
+    .back-button {
+        margin-bottom: 20px;
+        background: #374151;
+        border: none;
+        padding: 10px 16px;
+        border-radius: 8px;
+        color: white;
+    }
+
+        .back-button:hover {
+            background: #4b5563;
+        }
+
+</style>
