@@ -39,7 +39,6 @@ namespace CyberQuiz.API.Controllers
 
         // Hämta subkategorier 
         [HttpGet("subcategories/{subCategoryId}/questions")]
-        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<QuestionDto>>> GetQuestions(int subCategoryId)
         {
             var isAuth = User?.Identity?.IsAuthenticated ?? false;
@@ -71,7 +70,6 @@ namespace CyberQuiz.API.Controllers
 
         // Skicka in ett svar och få direkt feedback
         [HttpPost("submit")]
-        [AllowAnonymous]
         public async Task<IActionResult> SubmitAnswer([FromBody] SubmitAnswerDto submission)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
