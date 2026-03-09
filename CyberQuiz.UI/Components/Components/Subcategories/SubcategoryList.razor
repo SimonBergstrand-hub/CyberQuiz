@@ -16,9 +16,9 @@
 
     [Parameter] public EventCallback<int> OnStartQuiz { get; set; }
 
-    private async Task HandleStartQuiz(int difficultyIndex)
+    private async Task HandleStartQuiz(int subCategoryId)
     {
-        await OnStartQuiz.InvokeAsync(difficultyIndex);
+        await OnStartQuiz.InvokeAsync(subCategoryId);
     }
 
 }

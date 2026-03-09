@@ -18,7 +18,10 @@
         if (!q.IsAnswered)
             return "unanswered";
 
-        return q.IsCorrect ? "correct" : "wrong";
+        if (q.CorrectOptionId == q.SelectedOptionId)
+            return "correct";
+
+        return "wrong";
     }
 }
 

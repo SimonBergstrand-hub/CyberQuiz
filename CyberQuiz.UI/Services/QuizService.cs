@@ -1,34 +1,78 @@
 ﻿using CyberQuiz.UI.ViewModels;
+using Microsoft.AspNetCore.Http;
+using System.Net.Http;
+using System.Text.Json;
 
-namespace CyberQuiz.Services
+namespace CyberQuiz.UI.Services;
+
+public class QuizService
 {
-    public class QuizService
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public QuizService(IHttpContextAccessor httpContextAccessor, IHttpClientFactory httpClientFactory)
     {
-        public Task<List<QuizQuestionViewModel>> GetQuizQuestions(
-            int categoryId,
-            int difficultyIndex)
+        _httpContextAccessor = httpContextAccessor;
+        _httpClientFactory = httpClientFactory;
+    }
+
+    public async Task<List<QuizQuestionViewModel>> GetQuestionsAsync(int subCategoryId)
+    {
+        var client = _httpClientFactory.CreateClient("QuizApi");
+        var req = new HttpRequestMessage(HttpMethod.Get, $"api/quiz/subcategories/{subCategoryId}/questions");
+        if (_httpContextAccessor.HttpContext?.Request.Headers.TryGetValue("Cookie", out var cookie) == true)
         {
-            var questions = new List<QuizQuestionViewModel>();
-
-            for (int i = 1; i <= 10; i++)
-            {
-                questions.Add(new QuizQuestionViewModel
-                {
-                    QuestionId = i,
-                    QuestionText = $"Question {i} for category {categoryId}",
-                    Answers = new List<string>
-                    {
-                        "Answer A but a lot longer so I can see if this layout works when the answers are very long because it would be good to have a dynamic layout",
-                        "Answer B but a lot longer so I can see if this layout works when the answers are very long because it would be good to have a dynamic layout",
-                        "Answer C but a lot longer so I can see if this layout works when the answers are very long because it would be good to have a dynamic layout",
-                        "Answer D but a lot longer so I can see if this layout works when the answers are very long because it would be good to have a dynamic layout"
-                    },
-                    //CorrectAnswerIndex = Random.Shared.Next(0, 4)
-                    CorrectAnswerIndex = 0
-                });
-            }
-
-            return Task.FromResult(questions);
+            req.Headers.Add("Cookie", (string[])cookie);
         }
+        var resp = await client.SendAsync(req);
+
+        if (!resp.IsSuccessStatusCode)
+        {
+            try { Console.WriteLine($"[QuizService] API request failed: {req.RequestUri} -> {(int)resp.StatusCode} {resp.ReasonPhrase}"); } catch { }
+            try
+            {
+                var err = await resp.Content.ReadAsStringAsync();
+                Console.WriteLine($"[QuizService] Response body: {err}");
+            }
+            catch { }
+
+            return new List<QuizQuestionViewModel>();
+        }
+
+        var stream = await resp.Content.ReadAsStreamAsync();
+
+        List<ApiQuestionDto>? dtos = null;
+        try
+        {
+            dtos = await JsonSerializer.DeserializeAsync<List<ApiQuestionDto>>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        }
+        catch (Exception ex)
+        {
+            try { Console.WriteLine($"[QuizService] Deserialization failed: {ex.Message}"); } catch { }
+            return new List<QuizQuestionViewModel>();
+        }
+
+        var result = new List<QuizQuestionViewModel>();
+        if (dtos == null)
+        {
+            try { Console.WriteLine($"[QuizService] No questions returned for subcategory {subCategoryId}"); } catch { }
+            return result;
+        }
+
+        try { Console.WriteLine($"[QuizService] Received {dtos.Count} questions for subcategory {subCategoryId}"); } catch { }
+
+        foreach (var q in dtos)
+        {
+            var vm = new QuizQuestionViewModel
+            {
+                Id = q.Id,
+                Text = q.Text,
+                Options = q.Options.Select(o => new CyberQuiz.UI.ViewModels.AnswerOptionViewModel { Id = o.Id, Text = o.Text }).ToList()
+            };
+
+            result.Add(vm);
+        }
+
+        return result;
     }
 }

@@ -1,8 +1,10 @@
 using CyberQuiz.DAL.Data;
-using CyberQuiz.Services;
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
 using CyberQuiz.UI.Components;
 using CyberQuiz.UI.Components.Account;
 using CyberQuiz.UI.Data;
+using CyberQuiz.UI.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -16,12 +18,33 @@ builder.Services.AddRazorComponents()
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<SubCategoryService>();
 builder.Services.AddScoped<QuizService>();
-builder.Services.AddSingleton<QuizProgressService>();
+builder.Services.AddScoped<ProgressService>();
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<CategoryService>();
+
+var apiBase = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:5001/";
+
+builder.Services.AddHttpClient("QuizApi", client =>
+{
+    client.BaseAddress = new Uri(apiBase);
+});
+
+// Configure data protection to persist keys to a shared location for local development
+var dpPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CyberQuiz", "keys");
+Directory.CreateDirectory(dpPath);
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dpPath))
+    .SetApplicationName("CyberQuizApp");
+
+// Ensure the authentication cookie name is consistent so the API can validate forwarded cookies
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = ".CyberQuiz.Auth";
+    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
+});
 
 builder.Services.AddAuthentication(options =>
     {

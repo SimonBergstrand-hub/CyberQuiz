@@ -2,19 +2,16 @@
 {
     public class QuizQuestionViewModel
     {
-        public int QuestionId { get; set; }
+        public int Id { get; set; }
 
-        public string QuestionText { get; set; } = "";
+        public string Text { get; set; } = "";
 
-        public List<string> Answers { get; set; } = new();
+        public List<AnswerOptionViewModel> Options { get; set; } = new();
 
-        public int CorrectAnswerIndex { get; set; }
+        public int? SelectedOptionId { get; set; }
 
-        public int? SelectedAnswerIndex { get; set; }
+        public int? CorrectOptionId { get; set; }
 
-        public bool IsAnswered => SelectedAnswerIndex != null;
-
-        public bool IsCorrect =>
-            SelectedAnswerIndex == CorrectAnswerIndex;
+        public bool IsAnswered => SelectedOptionId != null;
     }
 }

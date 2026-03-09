@@ -1,6 +1,6 @@
 ﻿@page "/subcategory/{CategoryId:int}"
 
-@using CyberQuiz.Services
+@using CyberQuiz.UI.Services
 @using CyberQuiz.UI.Components.Components.Subcategories
 @using CyberQuiz.UI.ViewModels
 @using CyberQuiz.UI.Components.Components
@@ -23,8 +23,16 @@ else
 
     <BackToCategoriesButton OnNavigateBack="NavigateBack" />
 
-    <SubcategoryList SubCategories="@subCategories"
-                     OnStartQuiz="StartQuiz" />
+    @if (!subCategories.Any())
+    {
+        <div class="no-subcategories">
+            <p>Loading....</p>
+        </div>
+    }
+    else
+    {
+        <SubcategoryList SubCategories="@subCategories" OnStartQuiz="StartQuiz" />
+    }
 
 }
 
@@ -36,12 +44,14 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        subCategories = await SubCategoryService.GetSubCategoriesAsync(CategoryId);
+        // EDIT: Load from API
+        subCategories = await SubCategoryService
+            .GetSubCategoriesAsync(CategoryId);
     }
 
-    private void StartQuiz(int difficultyIndex)
+    private void StartQuiz(int subCategoryId)
     {
-        NavigationManager.NavigateTo($"/quiz/{CategoryId}/{difficultyIndex}");
+        NavigationManager.NavigateTo($"/quiz/{CategoryId}/{subCategoryId}");
     }
 
     private void NavigateBack()

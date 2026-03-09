@@ -4,6 +4,8 @@ using CyberQuiz.DAL.Seed;
 using CyberQuiz.BLL.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +21,20 @@ builder.Services.AddEndpointsApiExplorer();
 var connectionString = builder.Configuration.GetConnectionString("QuizConnection");
 builder.Services.AddDbContext<QuizDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+// Configure data protection to use shared key ring for local dev so the UI can forward cookies
+var dpPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CyberQuiz", "keys");
+Directory.CreateDirectory(dpPath);
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dpPath))
+    .SetApplicationName("CyberQuizApp");
+
+// Ensure API uses the same cookie name
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = ".CyberQuiz.Auth";
+    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
+});
 
 //Identity
 builder.Services.AddIdentityApiEndpoints<IdentityUser>()
