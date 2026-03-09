@@ -31,14 +31,6 @@ public class SubCategoryService
         var resp = await client.SendAsync(req);
         if (!resp.IsSuccessStatusCode)
         {
-            try { Console.WriteLine($"[SubCategoryService] API request failed: {req.RequestUri} -> {(int)resp.StatusCode} {resp.ReasonPhrase}"); } catch { }
-            try
-            {
-                var err = await resp.Content.ReadAsStringAsync();
-                Console.WriteLine($"[SubCategoryService] Response body: {err}");
-            }
-            catch { }
-
             return new List<SubCategoryViewModel>();
         }
 
@@ -52,34 +44,30 @@ public class SubCategoryService
                 PropertyNameCaseInsensitive = true
             });
         }
-        catch (Exception ex)
+        catch
         {
-            try { Console.WriteLine($"[SubCategoryService] Deserialization failed: {ex.Message}"); } catch { }
             return new List<SubCategoryViewModel>();
         }
 
         var result = new List<SubCategoryViewModel>();
         if (dtos == null)
         {
-            try { Console.WriteLine("[SubCategoryService] No subcategories returned (dtos == null)"); } catch { }
             return result;
         }
 
-        try { Console.WriteLine($"[SubCategoryService] Received {dtos.Count} subcategories from API for category {categoryId}"); } catch { }
-
         foreach (var d in dtos)
         {
-                result.Add(new SubCategoryViewModel
-                {
-                    Id = d.Id,
-                    Name = d.Name,
-                    Order = d.Order,
-                    QuestionCount = d.QuestionCount,
-                    IsLocked = d.IsLocked,
-                    DifficultyIndex = Math.Max(0, d.Order - 1),
-                    DifficultyName = d.Name,
-                    CorrectAnswers = 0 // API currently does not return per-user correct count here
-                });
+            result.Add(new SubCategoryViewModel
+            {
+                Id = d.Id,
+                Name = d.Name,
+                Order = d.Order,
+                QuestionCount = d.QuestionCount,
+                IsLocked = d.IsLocked,
+                DifficultyIndex = Math.Max(0, d.Order - 1),
+                DifficultyName = d.Name,
+                CorrectAnswers = 0 // API currently does not return per-user correct count here
+            });
         }
 
         // Try to fetch per-user stats (if API supports it) and merge
@@ -111,9 +99,9 @@ public class SubCategoryService
                 }
             }
         }
-        catch (Exception ex)
+        catch
         {
-            try { Console.WriteLine($"[SubCategoryService] Could not fetch per-subcategory stats: {ex.Message}"); } catch { }
+            // Silently ignore if stats endpoint not available yet
         }
 
         // Recalculate unlocks using the merged data

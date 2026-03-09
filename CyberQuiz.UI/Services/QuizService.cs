@@ -28,14 +28,6 @@ public class QuizService
 
         if (!resp.IsSuccessStatusCode)
         {
-            try { Console.WriteLine($"[QuizService] API request failed: {req.RequestUri} -> {(int)resp.StatusCode} {resp.ReasonPhrase}"); } catch { }
-            try
-            {
-                var err = await resp.Content.ReadAsStringAsync();
-                Console.WriteLine($"[QuizService] Response body: {err}");
-            }
-            catch { }
-
             return new List<QuizQuestionViewModel>();
         }
 
@@ -46,20 +38,16 @@ public class QuizService
         {
             dtos = await JsonSerializer.DeserializeAsync<List<ApiQuestionDto>>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
-        catch (Exception ex)
+        catch
         {
-            try { Console.WriteLine($"[QuizService] Deserialization failed: {ex.Message}"); } catch { }
             return new List<QuizQuestionViewModel>();
         }
 
         var result = new List<QuizQuestionViewModel>();
         if (dtos == null)
         {
-            try { Console.WriteLine($"[QuizService] No questions returned for subcategory {subCategoryId}"); } catch { }
             return result;
         }
-
-        try { Console.WriteLine($"[QuizService] Received {dtos.Count} questions for subcategory {subCategoryId}"); } catch { }
 
         foreach (var q in dtos)
         {
