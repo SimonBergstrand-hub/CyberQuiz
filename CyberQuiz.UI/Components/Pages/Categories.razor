@@ -1,5 +1,6 @@
 ﻿@page "/categories"
 @rendermode InteractiveServer
+@using CyberQuiz.UI.Components.Components.Categories
 @using Microsoft.AspNetCore.Authorization
 @attribute [Authorize]
 @implements IDisposable
@@ -7,7 +8,6 @@
 @inject NavigationManager NavigationManager
 @inject CyberQuiz.Services.CategoryService CategoryService
 @inject CyberQuiz.Services.SubCategoryService SubCategoryService
-@using CyberQuiz.UI.Components.Components
 @using CyberQuiz.UI.ViewModels
 
 
@@ -31,7 +31,6 @@
 
     private async void OnResultSaved()
     {
-        try { Console.WriteLine("[Categories] OnResultSaved invoked"); } catch { }
         categories = await CategoryService.GetUserCategoryProgressAsync();
         await InvokeAsync(StateHasChanged);
     }
