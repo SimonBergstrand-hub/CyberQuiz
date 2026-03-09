@@ -1,86 +1,90 @@
-﻿using CyberQuiz.BLL.DTOs;
-using CyberQuiz.BLL.Interfaces;
-using CyberQuiz.DAL.Data;
-using Microsoft.EntityFrameworkCore;
+﻿//using System;
+//using CyberQuiz.BLL.Interfaces;
+//using CyberQuiz.DAL;
 
+//using System.Collections.Generic;
+//using System.Text;
+//using CyberQuiz.DAL.Quiz;
+//using Microsoft.EntityFrameworkCore;
+//using CyberQuiz.BLL.DTOs;
 
-namespace CyberQuiz.BLL.Services
-{
-    public class ProgressService : IProgressService
-    {
-        private readonly QuizDbContext _context;
+//namespace CyberQuiz.BLL.Services
+//{
+//    internal class ProgressService : IProgressService
+//    {
+//        private readonly QuizDbContext _context;
 
-        public ProgressService(QuizDbContext context)
-        {
-            _context = context;
-        }
+//        public ProgressService(QuizDbContext context)
+//        {
+//            _context = context;
+//        }
 
-        // Räknar ut procent för en specifik subkategori
-        public async Task<double> CalculateScorePercentage(string userId, int subCategoryId)
-        {
-            var totalQuestions = await _context.Questions
-                .CountAsync(q => q.SubCategoryId == subCategoryId);
+        
+        
 
-            if (totalQuestions == 0) return 0;
+//        //räknar ut procent
+        
+//        public async Task<double> CalculateScorePercentage(string userId, int subCategoryId)
+//        {
+//            var totalQuestions = await _context.Questions
+//                .CountAsync(q => q.SubCategoryId == subCategoryId);
 
-            // Enklare sätt att räkna rätta svar utan manuell join om relationer finns
-            var correctAnswers = await _context.UserResults
-                .CountAsync(ur => ur.UserId == userId &&
-                                  ur.SubCategoryId == subCategoryId &&
-                                  ur.IsCorrect);
+//            var correctAnswers = await (from ur in _context.UserResults
+//                                        join q in _context.Questions
+//                                            on ur.QuestionId equals q.Id
+//                                        where ur.UserId == userId &&
+//                                              q.SubCategoryId == subCategoryId &&
+//                                              ur.IsCorrect
+//                                        select ur)
+//                                        .CountAsync();
+                            
 
-            return (double)correctAnswers / totalQuestions * 100;
-        }
+//            if (totalQuestions == 0)
+//                return 0;
 
-        // Kollar om användaren har nått 80%
-        public async Task<bool> HasPassedSubCategory(string userId, int subCategoryId)
-        {
-            var percentage = await CalculateScorePercentage(userId, subCategoryId);
-            return percentage >= 80;
-        }
+//            return (double)correctAnswers / totalQuestions * 100;
+//        }
 
-        // Hämtar alla subkategorier med status
-        public async Task<List<SubCategoryDto>> GetSubCategoriesWithStatusAsync(int categoryId, string userId)
-        {
-            // Hämta allt i ett anrop för att undvika "N+1"-problem i databasen
-            var subCategories = await _context.SubCategories
-                .Where(sc => sc.CategoryId == categoryId)
-                .OrderBy(sc => sc.Order)
-                .Include(sc => sc.Questions)
-                .ToListAsync();
+//        //kollar om procent >80
 
-            // Hämta användarens alla resultat för denna kategori en gång
-            var userResults = await _context.UserResults
-                .Where(ur => ur.UserId == userId)
-                .ToListAsync();
+//        public async Task<bool> HasPassedSubCategory(string userId, int subCategoryId)
+//        {
+//            var percentage = await CalculateScorePercentage(userId, subCategoryId);
+//            return percentage >= 80;
+//        }
 
-            var result = new List<SubCategoryDto>();
-            bool previousLevelCleared = true; // Första nivån är alltid upplåst
+//        // Kollar status på subkategorier
+//        public async Task<List<SubCategoryStatusDto>> GetSubCategoriesWithStatusAsync(int categoryId, string userId)
+//        {
+//            var subCategories = await _context.SubCategories
+//                .Where(sc => sc.CategoryId == categoryId)
+//                .OrderBy(sc => sc.Order)
+//                .ToListAsync();
 
-            foreach (var sc in subCategories)
-            {
-                int totalQ = sc.Questions.Count;
-                int correctQ = userResults.Count(ur => ur.SubCategoryId == sc.Id && ur.IsCorrect);
+//            var result = new List<SubCategoryStatusDto>();
 
-                double percentage = totalQ > 0 ? (double)correctQ / totalQ * 100 : 0;
+//            bool previousLevelCleared = true;
 
-                // Skapa DTO baserat på din tidigare struktur
-                var status = new SubCategoryDto
-                {
-                    Id = sc.Id,           // Ändrat från SubCategoryId till Id för att matcha DTO
-                    Name = sc.Name,
-                    Order = sc.Order,
-                    QuestionCount = totalQ,
-                    IsLocked = !previousLevelCleared
-                };
+//            foreach (var sc in subCategories)
+//            {
+//                var percentage = await CalculateScorePercentage(userId, sc.Id);
 
-                // Uppdatera status inför nästa nivå i loopen
-                previousLevelCleared = percentage >= 80;
+//                var status = new SubCategoryStatusDto
+//                {
+//                    SubCategoryId = sc.Id,
+//                    Name = sc.Name,
+//                    Percentage = percentage,
+//                    IsLocked = !previousLevelCleared
+//                };
 
-                result.Add(status);
-            }
+//                previousLevelCleared = percentage >= 80;
 
-            return result;
-        }
-    }
-}
+//                result.Add(status);
+//            }
+
+//            return result;
+//        }
+//    }
+
+   
+//}

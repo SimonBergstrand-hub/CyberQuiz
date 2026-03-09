@@ -1,0 +1,38 @@
+﻿@using CyberQuiz.UI.ViewModels
+
+<div class="subcategory-grid">
+
+@foreach (var sub in SubCategories)
+{
+    <SubcategoryCard SubCategory="@sub"
+                     OnStartQuiz="HandleStartQuiz" />
+}
+
+</div>
+
+@code {
+
+    [Parameter] public List<SubCategoryViewModel> SubCategories { get; set; } = new();
+
+    [Parameter] public EventCallback<int> OnStartQuiz { get; set; }
+
+    private async Task HandleStartQuiz(int difficultyIndex)
+    {
+        await OnStartQuiz.InvokeAsync(difficultyIndex);
+    }
+
+}
+
+<style>
+
+.subcategory-grid {
+
+    display: grid;
+
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+
+    gap: 20px;
+
+}
+
+</style>
