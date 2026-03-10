@@ -9,7 +9,7 @@
 @attribute [Authorize]
 
 @inject NavigationManager NavigationManager
-@inject CategoryService CategoryService
+@inject CyberQuiz.UI.Services.CategoryService CategoryService
 
 <CategoryList Categories="@categories" GoToDetails="@HandleGoToDetails" />
 
@@ -19,7 +19,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // EDIT: Load categories from API
+        // Load categories from API
         categories = await CategoryService.GetCategoriesAsync();
     }
 

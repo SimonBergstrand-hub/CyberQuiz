@@ -43,6 +43,7 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>()
 //Dependency injection (BLL)
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IProgressService, ProgressService>(); // ✅ Added
 
 var app = builder.Build();
 

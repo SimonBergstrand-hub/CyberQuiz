@@ -1,90 +1,78 @@
-﻿//using System;
-//using CyberQuiz.BLL.Interfaces;
-//using CyberQuiz.DAL;
+﻿using CyberQuiz.BLL.Interfaces;
+using CyberQuiz.BLL.DTOs;
+using CyberQuiz.DAL.Data;
+using Microsoft.EntityFrameworkCore;
 
-//using System.Collections.Generic;
-//using System.Text;
-//using CyberQuiz.DAL.Quiz;
-//using Microsoft.EntityFrameworkCore;
-//using CyberQuiz.BLL.DTOs;
+namespace CyberQuiz.BLL.Services
+{
+    public class ProgressService : IProgressService
+    {
+        private readonly QuizDbContext _context;
 
-//namespace CyberQuiz.BLL.Services
-//{
-//    internal class ProgressService : IProgressService
-//    {
-//        private readonly QuizDbContext _context;
+        public ProgressService(QuizDbContext context)
+        {
+            _context = context;
+        }
 
-//        public ProgressService(QuizDbContext context)
-//        {
-//            _context = context;
-//        }
+        // Räknar ut procent
+        public async Task<double> CalculateScorePercentage(string userId, int subCategoryId)
+        {
+            var totalQuestions = await _context.Questions
+                .CountAsync(q => q.SubCategoryId == subCategoryId);
 
-        
-        
+            var correctAnswers = await (from ur in _context.UserResults
+                                        join q in _context.Questions
+                                            on ur.QuestionId equals q.Id
+                                        where ur.UserId == userId &&
+                                              q.SubCategoryId == subCategoryId &&
+                                              ur.IsCorrect
+                                        select ur)
+                                        .CountAsync();
 
-//        //räknar ut procent
-        
-//        public async Task<double> CalculateScorePercentage(string userId, int subCategoryId)
-//        {
-//            var totalQuestions = await _context.Questions
-//                .CountAsync(q => q.SubCategoryId == subCategoryId);
+            if (totalQuestions == 0)
+                return 0;
 
-//            var correctAnswers = await (from ur in _context.UserResults
-//                                        join q in _context.Questions
-//                                            on ur.QuestionId equals q.Id
-//                                        where ur.UserId == userId &&
-//                                              q.SubCategoryId == subCategoryId &&
-//                                              ur.IsCorrect
-//                                        select ur)
-//                                        .CountAsync();
-                            
+            return (double)correctAnswers / totalQuestions * 100;
+        }
 
-//            if (totalQuestions == 0)
-//                return 0;
+        // Kollar om procent >80
+        public async Task<bool> HasPassedSubCategory(string userId, int subCategoryId)
+        {
+            var percentage = await CalculateScorePercentage(userId, subCategoryId);
+            return percentage >= 80;
+        }
 
-//            return (double)correctAnswers / totalQuestions * 100;
-//        }
+        // Kollar status på subkategorier
+        public async Task<List<SubCategoryDto>> GetSubCategoriesWithStatusAsync(int categoryId, string userId)
+        {
+            var subCategories = await _context.SubCategories
+                .Include(sc => sc.Questions)
+                .Where(sc => sc.CategoryId == categoryId)
+                .OrderBy(sc => sc.Order)
+                .ToListAsync();
 
-//        //kollar om procent >80
+            var result = new List<SubCategoryDto>();
+            bool previousLevelCleared = true;
 
-//        public async Task<bool> HasPassedSubCategory(string userId, int subCategoryId)
-//        {
-//            var percentage = await CalculateScorePercentage(userId, subCategoryId);
-//            return percentage >= 80;
-//        }
+            foreach (var sc in subCategories)
+            {
+                var percentage = await CalculateScorePercentage(userId, sc.Id);
 
-//        // Kollar status på subkategorier
-//        public async Task<List<SubCategoryStatusDto>> GetSubCategoriesWithStatusAsync(int categoryId, string userId)
-//        {
-//            var subCategories = await _context.SubCategories
-//                .Where(sc => sc.CategoryId == categoryId)
-//                .OrderBy(sc => sc.Order)
-//                .ToListAsync();
+                var status = new SubCategoryDto
+                {
+                    Id = sc.Id,
+                    Name = sc.Name,
+                    Order = sc.Order,
+                    QuestionCount = sc.Questions.Count,
+                    IsLocked = !previousLevelCleared
+                };
 
-//            var result = new List<SubCategoryStatusDto>();
+                previousLevelCleared = percentage >= 80;
 
-//            bool previousLevelCleared = true;
+                result.Add(status);
+            }
 
-//            foreach (var sc in subCategories)
-//            {
-//                var percentage = await CalculateScorePercentage(userId, sc.Id);
-
-//                var status = new SubCategoryStatusDto
-//                {
-//                    SubCategoryId = sc.Id,
-//                    Name = sc.Name,
-//                    Percentage = percentage,
-//                    IsLocked = !previousLevelCleared
-//                };
-
-//                previousLevelCleared = percentage >= 80;
-
-//                result.Add(status);
-//            }
-
-//            return result;
-//        }
-//    }
-
-   
-//}
+            return result;
+        }
+    }
+}
