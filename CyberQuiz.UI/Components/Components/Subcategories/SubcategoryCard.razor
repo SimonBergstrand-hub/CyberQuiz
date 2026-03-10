@@ -1,11 +1,11 @@
 ﻿@using CyberQuiz.UI.ViewModels
 
-<div class="subcategory-card @(SubCategory.IsUnlocked ? "" : "locked")">
+<div class="subcategory-card @(SubCategory.IsUnlocked ? string.Empty : "locked")">
 
     <div class="subcategory-header">
 
         <div class="difficulty-name">
-            @SubCategory.DifficultyName
+            @SubCategory.Name
         </div>
 
         @if (!SubCategory.IsUnlocked)
@@ -51,7 +51,8 @@
 
     private async Task StartQuiz()
     {
-        await OnStartQuiz.InvokeAsync(SubCategory.DifficultyIndex);
+        // Pass the actual subcategory DB id to the quiz page so the API can return questions
+        await OnStartQuiz.InvokeAsync(SubCategory.Id);
     }
 
 }

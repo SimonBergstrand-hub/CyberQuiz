@@ -1,7 +1,6 @@
 ﻿namespace CyberQuiz.UI.ViewModels
 {
-
-    // DUMMY VIEWMODEL UNTIL WE FIX THE DATABASE
+    // ViewModel used by the UI to show category progress and subcategory details
     public class CategoryProgressViewModel
     {
         public int CategoryId { get; set; }

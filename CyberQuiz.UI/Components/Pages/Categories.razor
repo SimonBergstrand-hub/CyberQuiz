@@ -1,43 +1,26 @@
 ﻿@page "/categories"
 @rendermode InteractiveServer
+
 @using CyberQuiz.UI.Components.Components.Categories
+@using CyberQuiz.UI.Services
+@using CyberQuiz.UI.ViewModels
 @using Microsoft.AspNetCore.Authorization
+
 @attribute [Authorize]
-@implements IDisposable
 
 @inject NavigationManager NavigationManager
-@inject CyberQuiz.Services.CategoryService CategoryService
-@inject CyberQuiz.Services.SubCategoryService SubCategoryService
-@using CyberQuiz.UI.ViewModels
-
+@inject CyberQuiz.UI.Services.CategoryService CategoryService
 
 <CategoryList Categories="@categories" GoToDetails="@HandleGoToDetails" />
 
 @code {
+
     private List<CategoryProgressViewModel> categories = new();
 
     protected override async Task OnInitializedAsync()
     {
-        // Subscribe to progress changes so the categories page updates when a quiz is finished
-        SubCategoryService.ResultSaved += OnResultSaved;
-    }
-
-    protected override async Task OnParametersSetAsync()
-    {
-        // Always refresh when the component becomes active / parameters change
-        categories = await CategoryService.GetUserCategoryProgressAsync();
-        await base.OnParametersSetAsync();
-    }
-
-    private async void OnResultSaved()
-    {
-        categories = await CategoryService.GetUserCategoryProgressAsync();
-        await InvokeAsync(StateHasChanged);
-    }
-
-    public void Dispose()
-    {
-        SubCategoryService.ResultSaved -= OnResultSaved;
+        // Load categories from API
+        categories = await CategoryService.GetCategoriesAsync();
     }
 
     private Task HandleGoToDetails(int categoryId)
@@ -45,4 +28,5 @@
         NavigationManager.NavigateTo($"/subcategory/{categoryId}");
         return Task.CompletedTask;
     }
-}   
+
+}

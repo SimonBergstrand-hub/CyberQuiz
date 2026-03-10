@@ -6,15 +6,21 @@
 
     private async Task SelectAnswer(int answerIndex)
     {
-        await OnAnswerSelected.InvokeAsync(answerIndex);
+        var optionId = Question.Options[answerIndex].Id;
+        await OnAnswerSelected.InvokeAsync(optionId);
     }
 
     private string GetAnswerClass(int index)
     {
         if (!Question.IsAnswered) return "";
 
-        if (index == Question.CorrectAnswerIndex) return "correct";
-        if (index == Question.SelectedAnswerIndex) return "wrong";
+        var option = Question.Options[index];
+
+        if (option.Id == Question.CorrectOptionId)
+            return "correct";
+
+        if (option.Id == Question.SelectedOptionId)
+            return "wrong";
 
         return "disabled";
     }
@@ -23,12 +29,12 @@
 <div class="question-card slide-in">
 
     <div class="question-title">
-        @Question.QuestionText
+        @Question.Text
     </div>
 
     <div class="answers-container">
 
-        @for (int i = 0; i < Question.Answers.Count; i++)
+        @for (int i = 0; i < Question.Options.Count; i++)
         {
             var index = i;
 
@@ -41,7 +47,7 @@
                 </div>
 
                 <div class="answer-text">
-                    @Question.Answers[i]
+                    @Question.Options[i].Text
                 </div>
 
             </button>

@@ -1,11 +1,13 @@
 using CyberQuiz.DAL.Data;
-using CyberQuiz.Services;
 using CyberQuiz.UI.Components;
 using CyberQuiz.UI.Components.Account;
 using CyberQuiz.UI.Data;
+using CyberQuiz.UI.Services;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,18 +18,40 @@ builder.Services.AddRazorComponents()
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
-builder.Services.AddScoped<SubCategoryService>();
-builder.Services.AddScoped<QuizService>();
-builder.Services.AddSingleton<QuizProgressService>();
+
+builder.Services.AddScoped<CyberQuiz.UI.Services.CategoryService>();
+builder.Services.AddScoped<CyberQuiz.UI.Services.SubCategoryService>();
+builder.Services.AddScoped<CyberQuiz.UI.Services.QuizService>();
+builder.Services.AddScoped<CyberQuiz.UI.Services.ProgressService>();
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<CategoryService>();
+
+var apiBase = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:5001/";
+
+builder.Services.AddHttpClient("QuizApi", client =>
+{
+    client.BaseAddress = new Uri(apiBase);
+});
+
+// Configure data protection to persist keys to a shared location for local development
+var dpPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CyberQuiz", "keys");
+Directory.CreateDirectory(dpPath);
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dpPath))
+    .SetApplicationName("CyberQuizApp");
+
+// Ensure the authentication cookie name is consistent so the API can validate forwarded cookies
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = ".CyberQuiz.Auth";
+    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
+});
 
 builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultScheme = IdentityConstants.ApplicationScheme;
-        options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-    })
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
     .AddIdentityCookies();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -36,15 +60,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
-    {
-        options.Password.RequireDigit = false;
-        options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequireUppercase = false;
-        options.Password.RequireLowercase = false;
-        options.Password.RequiredLength = 4;
-        options.SignIn.RequireConfirmedAccount = true;
-        options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
-    })
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequiredLength = 4;
+    options.SignIn.RequireConfirmedAccount = true;
+    options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
+})
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
@@ -84,8 +108,8 @@ app.MapAdditionalIdentityEndpoints();
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    string[] roles = new[] { "Admin"}; // For now, we can add new roles here if we need them.
-    
+    string[] roles = new[] { "Admin" }; // For now, we can add new roles here if we need them.
+
     foreach (var role in roles)
     {
         if (!await roleManager.RoleExistsAsync(role))

@@ -1,55 +1,59 @@
 ﻿using CyberQuiz.UI.ViewModels;
-using CyberQuiz.UI.Data;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
+using System.Net.Http;
+using System.Text.Json;
 
-namespace CyberQuiz.Services
+namespace CyberQuiz.UI.Services;
+
+public class CategoryService
 {
-    public class CategoryService
-    {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly SubCategoryService _subCategoryService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly SubCategoryService _subCategoryService;
 
-        public CategoryService(
-            UserManager<ApplicationUser> userManager,
-            IHttpContextAccessor httpContextAccessor,
-            SubCategoryService subCategoryService)
+    public CategoryService(IHttpContextAccessor httpContextAccessor, IHttpClientFactory httpClientFactory, SubCategoryService subCategoryService)
+    {
+        _httpContextAccessor = httpContextAccessor;
+        _httpClientFactory = httpClientFactory;
+        _subCategoryService = subCategoryService;
+    }
+
+    public async Task<List<CategoryProgressViewModel>> GetCategoriesAsync()
+    {
+        var client = _httpClientFactory.CreateClient("QuizApi");
+
+        var req = new HttpRequestMessage(HttpMethod.Get, "api/quiz/categories");
+        if (_httpContextAccessor.HttpContext?.Request.Headers.TryGetValue("Cookie", out var cookie) == true)
         {
-            _userManager = userManager;
-            _httpContextAccessor = httpContextAccessor;
-            _subCategoryService = subCategoryService;
+            req.Headers.Add("Cookie", (string[])cookie);
         }
 
-        public async Task<List<CategoryProgressViewModel>> GetUserCategoryProgressAsync()
+        var resp = await client.SendAsync(req);
+        if (!resp.IsSuccessStatusCode) return new();
+
+        var stream = await resp.Content.ReadAsStreamAsync();
+        var dtos = await JsonSerializer.DeserializeAsync<List<ApiCategoryDto>>(stream, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        var result = new List<CategoryProgressViewModel>();
+        if (dtos == null) return result;
+
+        foreach (var dto in dtos)
         {
-            var user = await _userManager.GetUserAsync(
-                _httpContextAccessor.HttpContext!.User);
-
-            if (user == null)
-                return new List<CategoryProgressViewModel>();
-
-            var categories = new List<CategoryProgressViewModel>
+            var vm = new CategoryProgressViewModel
             {
-                new() { CategoryId = 1, Name="Network Security", Description="Core fundamentals" },
-                new() { CategoryId = 2, Name="Cryptography", Description="Encryption & hashing" },
-                new() { CategoryId = 3, Name="Web Security", Description="OWASP & attacks" },
-                new() { CategoryId = 4, Name="Malware Analysis", Description="Reverse engineering basics" }
+                CategoryId = dto.Id,
+                Name = dto.Name,
+                Description = dto.Description ?? string.Empty
             };
 
-            foreach (var category in categories)
-            {
-                var subcategories =
-                    await _subCategoryService.GetSubCategoriesAsync(category.CategoryId);
+            // populate subcategories via SubCategoryService
+            vm.SubCategories = await _subCategoryService.GetSubCategoriesAsync(vm.CategoryId);
+            vm.TotalQuestions = vm.SubCategories.Sum(s => s.TotalQuestions);
+            vm.CorrectAnswers = vm.SubCategories.Sum(s => s.CorrectAnswers);
 
-                // SubCategoryService already applies any saved results and unlock logic,
-                // so just use the returned values directly.
-                category.TotalQuestions = subcategories.Sum(s => s.TotalQuestions);
-                category.CorrectAnswers = subcategories.Sum(s => s.CorrectAnswers);
-                category.SubCategories = subcategories;
-            }
-
-            return categories;
+            result.Add(vm);
         }
+
+        return result;
     }
 }

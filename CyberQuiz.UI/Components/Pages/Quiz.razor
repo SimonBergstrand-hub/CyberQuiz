@@ -1,41 +1,49 @@
-﻿@page "/quiz/{CategoryId:int}/{DifficultyIndex:int}"
-@using CyberQuiz.Services
+﻿@page "/quiz/{CategoryId:int}/{SubCategoryId:int}"
+
+@using CyberQuiz.UI.Services
 @using CyberQuiz.UI.Components.Components.Quiz
 @using CyberQuiz.UI.ViewModels
-@using CyberQuiz.Models
 @using Microsoft.AspNetCore.Authorization
+
 @attribute [Authorize]
 @rendermode InteractiveServer
 
 @inject QuizService QuizService
-@inject QuizProgressService ProgressService
+@inject ProgressService ProgressService
 @inject NavigationManager NavigationManager
 
 <div class="quiz-container">
+
     <QuizProgress CurrentIndex="@currentIndex"
                   TotalQuestions="@questions.Count"
                   AnsweredCount="@questions.Count(q => q.IsAnswered)"
                   Visible="!quizFinished" />
 
     <div class="quiz-layout">
+
         <QuestionList Questions="@questions"
                       CurrentIndex="@currentIndex"
                       OnSelectQuestion="HandleSelectQuestion" />
 
         <div class="quiz-main-area">
+
             <QuizMainArea CurrentQuestion="@currentQuestion"
                           QuizFinished="@quizFinished"
                           CorrectAnswers="@correctAnswers"
                           QuestionsCount="@questions.Count"
                           OnAnswerSelected="HandleAnswerSelected"
                           OnBackClicked="ReturnToSubcategory" />
+
         </div>
+
     </div>
+
 </div>
 
 @code {
+
     [Parameter] public int CategoryId { get; set; }
-    [Parameter] public int DifficultyIndex { get; set; }
+    [Parameter] public int SubCategoryId { get; set; }
 
     private List<QuizQuestionViewModel> questions = new();
     private int currentIndex = 0;
@@ -49,57 +57,55 @@
 
     protected override async Task OnInitializedAsync()
     {
-        questions = await QuizService.GetQuizQuestions(CategoryId, DifficultyIndex);
+        // EDIT: Load questions from API using the subcategory id
+        questions = await QuizService.GetQuestionsAsync(SubCategoryId);
     }
 
-    async Task HandleAnswerSelected(int answerIndex)
+    async Task HandleAnswerSelected(int optionId)
     {
-        await SelectAnswer(answerIndex);
-    }
-
-    void HandleSelectQuestion(int index)
-    {
-        currentIndex = index;
-        StateHasChanged();
-    }
-
-    async Task SelectAnswer(int answerIndex)
-    {
-        if (currentQuestion == null || currentQuestion.IsAnswered)
+        if (currentQuestion == null)
             return;
 
-        currentQuestion.SelectedAnswerIndex = answerIndex;
+        // EDIT: Submit answer to API
+        currentQuestion.SelectedOptionId = optionId;
 
-        if (currentQuestion.IsCorrect)
-            correctAnswers++;
+        var result = await ProgressService
+            .SubmitAnswerAsync(currentQuestion.Id, optionId);
+
+        if (result != null)
+        {
+            currentQuestion.CorrectOptionId = result.CorrectOptionId;
+
+            // EDIT: Correctness now comes from API response
+            if (result.IsCorrect)
+                correctAnswers++;
+        }
 
         await CheckQuizCompletion();
 
         StateHasChanged();
 
+        // Small delay so the user sees the feedback, then advance to next question
         await Task.Delay(800);
 
         if (!quizFinished && currentIndex < questions.Count - 1)
         {
             currentIndex++;
+            StateHasChanged();
         }
+    }
+
+    void HandleSelectQuestion(int index)
+    {
+        currentIndex = index;
     }
 
     async Task CheckQuizCompletion()
     {
+        // EDIT: Quiz finishes when all questions answered
         if (questions.All(q => q.IsAnswered))
         {
             quizFinished = true;
-
-
-            await ProgressService.SaveResultAsync(new QuizResult
-            {
-                CategoryId = CategoryId,
-                DifficultyIndex = DifficultyIndex,
-                Score = correctAnswers,
-                TotalQuestions = questions.Count,
-                CompletedAt = DateTime.UtcNow
-            });
         }
     }
 
@@ -107,6 +113,7 @@
     {
         NavigationManager.NavigateTo($"/subcategory/{CategoryId}");
     }
+
 }
 
 <style>
