@@ -15,5 +15,7 @@ namespace CyberQuiz.BLL.Interfaces
 
         // För IsUnlocked (om du vill ha den separata kontrollen)
         Task<bool> IsSubCategoryUnlockedAsync(string userId, int subCategoryId);
+
+        Task<IEnumerable<SubCategoryStatsDto>> GetSubCategoryStatsAsync(int categoryId, string userId);
     }
 }
