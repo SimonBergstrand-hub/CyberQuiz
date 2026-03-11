@@ -88,6 +88,45 @@ namespace CyberQuiz.BLL.Services
             return IsLevelCleared(previousSubCat, results);
         }
 
+        public async Task<IEnumerable<SubCategoryStatsDto>> GetSubCategoryStatsAsync(int categoryId, string userId)
+        {
+            var category = await _db.Categories
+                .Include(c => c.SubCategories.OrderBy(sc => sc.Order))
+                .ThenInclude(sc => sc.Questions)
+                .FirstOrDefaultAsync(c => c.Id == categoryId);
+
+            if (category == null)
+                return Enumerable.Empty<SubCategoryStatsDto>();
+
+            var userResults = await _db.UserResults
+                .Where(ur => ur.UserId == userId)
+                .ToListAsync();
+
+            var stats = new List<SubCategoryStatsDto>();
+
+            foreach (var sc in category.SubCategories)
+            {
+                int totalQuestions = sc.Questions.Count;
+
+                int correctAnswers = userResults
+                    .Count(r => r.SubCategoryId == sc.Id && r.IsCorrect);
+
+                double percentage = totalQuestions == 0
+                    ? 0
+                    : (double)correctAnswers / totalQuestions * 100;
+
+                stats.Add(new SubCategoryStatsDto
+                {
+                    SubCategoryId = sc.Id,
+                    CorrectAnswers = correctAnswers,
+                    TotalQuestions = totalQuestions,
+                    Percentage = percentage
+                });
+            }
+
+            return stats;
+        }
+
         // Hjälpmetod för att räkna ut 80%-spärren
         private bool IsLevelCleared(DAL.Models.SubCategory sc, List<DAL.Models.UserResult> results)
         {
