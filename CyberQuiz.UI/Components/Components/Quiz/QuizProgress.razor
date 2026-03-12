@@ -7,47 +7,18 @@
 
 @if (Visible && TotalQuestions > 0)
 {
-    var progress = ((double)AnsweredCount / TotalQuestions) * 100;
-
-    <div class="quiz-progress-wrapper">
-
-        <div class="quiz-counter">
-            Question @(CurrentIndex + 1) of @TotalQuestions
-        </div>
-
-        <div class="quiz-progress">
-            <div class="quiz-progress-bar"
-                 style=@($"width:{progress}%")>
-            </div>
-        </div>
-
+    <div class="quiz-counter">
+        Question @(CurrentIndex + 1)/@TotalQuestions
     </div>
 }
 
 <style>
 
-    .quiz-progress-wrapper {
-        margin-bottom: 25px;
-    }
-
     .quiz-counter {
         text-align: center;
         color: #9ca3af;
         font-size: 14px;
-        margin-bottom: 8px;
-    }
-
-    .quiz-progress {
-        height: 14px;
-        background: #374151;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    .quiz-progress-bar {
-        height: 100%;
-        background: linear-gradient(90deg,#22c55e,#4ade80);
-        transition: width .6s cubic-bezier(.4,0,.2,1);
+        margin-bottom: 20px;
     }
 
 </style>

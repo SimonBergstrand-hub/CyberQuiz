@@ -4,7 +4,7 @@
     flex-direction: column;
 }
 .sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+    background: linear-gradient(180deg, #1e3a8a 0%, #172554 100%);
 }
 main {
     flex: 1;
@@ -15,7 +15,7 @@ main {
     min-height: 100vh;
     background-image: url('/images/QuizBackground.png');
     background-size: cover;
-    background-position: center;
+    background-position: left center;
     background-repeat: no-repeat;
 }
 

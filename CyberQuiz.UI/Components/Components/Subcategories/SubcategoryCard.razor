@@ -23,7 +23,7 @@
 
         <div class="progress-bar">
             <div class="progress-fill"
-                 style="width:@SubCategory.Percentage%">
+                 style="width: @(SubCategory.Percentage.ToString("F0"))%">
             </div>
         </div>
 
@@ -58,8 +58,8 @@
 }
 
 <style>
-
     .subcategory-card {
+        max-width: 320px;
         background: #1f2937;
         padding: 24px;
         border-radius: 14px;
@@ -109,6 +109,8 @@
     .progress-fill {
         height: 100%;
         background: linear-gradient(90deg,#22c55e,#4ade80);
+        border-radius: 6px;
+        transition: width 0.3s ease;
     }
 
     .start-button {
@@ -119,4 +121,7 @@
         color: white;
     }
 
+    .start-button:hover {
+        background: #1d4ed8;
+    }
 </style>

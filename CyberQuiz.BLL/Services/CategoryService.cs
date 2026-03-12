@@ -108,8 +108,12 @@ namespace CyberQuiz.BLL.Services
             {
                 int totalQuestions = sc.Questions.Count;
 
+                // Count unique questions that were answered correctly (not total attempts)
                 int correctAnswers = userResults
-                    .Count(r => r.SubCategoryId == sc.Id && r.IsCorrect);
+                    .Where(r => r.SubCategoryId == sc.Id && r.IsCorrect)
+                    .Select(r => r.QuestionId)
+                    .Distinct()
+                    .Count();
 
                 double percentage = totalQuestions == 0
                     ? 0

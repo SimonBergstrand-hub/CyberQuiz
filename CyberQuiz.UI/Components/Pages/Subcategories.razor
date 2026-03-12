@@ -4,11 +4,9 @@
 @using CyberQuiz.UI.Components.Components.Subcategories
 @using CyberQuiz.UI.ViewModels
 @using CyberQuiz.UI.Components.Components
-
 @using Microsoft.AspNetCore.Authorization
 
 @attribute [Authorize]
-
 @rendermode InteractiveServer
 
 @inject SubCategoryService SubCategoryService
@@ -20,20 +18,23 @@
 }
 else
 {
-
     <BackToCategoriesButton OnNavigateBack="NavigateBack" />
 
-    @if (!subCategories.Any())
-    {
-        <div class="no-subcategories">
-            <p>Loading....</p>
-        </div>
-    }
-    else
-    {
-        <SubcategoryList SubCategories="@subCategories" OnStartQuiz="StartQuiz" />
-    }
+    <div class="subcategories-container">
 
+        @if (!subCategories.Any())
+        {
+            <div class="no-subcategories">
+                <p>No subcategories found.</p>
+            </div>
+        }
+        else
+        {
+            <SubcategoryList SubCategories="@subCategories"
+                             OnStartQuiz="StartQuiz" />
+        }
+
+    </div>
 }
 
 @code {
@@ -44,7 +45,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // EDIT: Load from API
         subCategories = await SubCategoryService
             .GetSubCategoriesAsync(CategoryId);
     }
@@ -60,3 +60,13 @@ else
     }
 
 }
+
+<style>
+
+    .subcategories-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding-top: 60px;
+    }
+
+</style>

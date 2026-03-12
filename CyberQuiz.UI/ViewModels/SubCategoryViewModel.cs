@@ -19,6 +19,7 @@
         }
 
         public int CorrectAnswers { get; set; }
+        public int AnsweredQuestions { get; set; }
 
         public bool IsUnlocked
         {
@@ -27,6 +28,6 @@
         }
 
         public double Percentage =>
-            TotalQuestions == 0 ? 0 : (double)CorrectAnswers / TotalQuestions * 100;
+            TotalQuestions == 0 ? 0 : Math.Min(100.0, (double)CorrectAnswers / TotalQuestions * 100);
     }
 }

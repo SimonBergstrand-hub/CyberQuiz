@@ -15,6 +15,6 @@
 
         public double Percentage =>
             TotalQuestions == 0 ? 0 :
-            (double)CorrectAnswers / TotalQuestions * 100;
+            Math.Min(100.0, (double)CorrectAnswers / TotalQuestions * 100);
     }
 }
