@@ -5,7 +5,6 @@ using CyberQuiz.BLL.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection;
-using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +43,11 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>()
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProgressService, ProgressService>(); // ✅ Added
+
+
+// AI Integration
+builder.Services.AddHttpClient<IAiService, AiService>();
+builder.Services.AddScoped<IAiService, AiService>();
 
 var app = builder.Build();
 
