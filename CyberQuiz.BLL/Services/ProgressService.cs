@@ -39,7 +39,7 @@ namespace CyberQuiz.BLL.Services
         public async Task<bool> HasPassedSubCategory(string userId, int subCategoryId)
         {
             var percentage = await CalculateScorePercentage(userId, subCategoryId);
-            return percentage >= 80;
+            return percentage >= 60;
         }
 
         // Kollar status på subkategorier
@@ -67,7 +67,7 @@ namespace CyberQuiz.BLL.Services
                     IsLocked = !previousLevelCleared
                 };
 
-                previousLevelCleared = percentage >= 80;
+                previousLevelCleared = percentage >= 60;
 
                 result.Add(status);
             }

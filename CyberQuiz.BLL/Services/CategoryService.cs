@@ -134,7 +134,7 @@ namespace CyberQuiz.BLL.Services
             if (totalQuestions == 0) return false;
 
             int correctAnswers = results.Count(r => r.SubCategoryId == sc.Id && r.IsCorrect);
-            return (double)correctAnswers / totalQuestions >= 0.8;
+            return (double)correctAnswers / totalQuestions >= 0.6;
         }
     }
 }
