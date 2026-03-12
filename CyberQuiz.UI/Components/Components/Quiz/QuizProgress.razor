@@ -7,7 +7,7 @@
 
 @if (Visible && TotalQuestions > 0)
 {
-    var progress = ((double)AnsweredCount / TotalQuestions) * 100;
+    var progress = ((double)(CurrentIndex + 1) / TotalQuestions) * 100;
 
     <div class="quiz-progress-wrapper">
 
