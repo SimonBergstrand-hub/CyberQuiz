@@ -3,6 +3,7 @@
 @code {
     [Parameter] public List<QuizQuestionViewModel> Questions { get; set; }
     [Parameter] public int CurrentIndex { get; set; }
+    [Parameter] public bool QuizFinished { get; set; }
     [Parameter] public EventCallback<int> OnSelectQuestion { get; set; }
 
     private void SelectQuestion(int index)
@@ -12,7 +13,8 @@
 
     private string GetIndicatorClass(QuizQuestionViewModel q, int index)
     {
-        if (index == CurrentIndex)
+        // When quiz is finished, show correct/wrong instead of current
+        if (!QuizFinished && index == CurrentIndex)
             return "current";
 
         if (!q.IsAnswered)

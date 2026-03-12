@@ -23,6 +23,7 @@
 
         <QuestionList Questions="@questions"
                       CurrentIndex="@currentIndex"
+                      QuizFinished="@quizFinished"
                       OnSelectQuestion="HandleSelectQuestion" />
 
         <div class="quiz-main-area">
@@ -91,8 +92,9 @@
         if (!quizFinished && currentIndex < questions.Count - 1)
         {
             currentIndex++;
-            StateHasChanged();
         }
+
+        StateHasChanged();
     }
 
     void HandleSelectQuestion(int index)
