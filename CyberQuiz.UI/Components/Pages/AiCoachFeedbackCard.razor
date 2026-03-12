@@ -1,0 +1,69 @@
+@using CyberQuiz.UI.ViewModels
+
+<div class="card shadow-sm @(_feedback.IsError ? "border-danger" : "border-primary")">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <div>
+            <span class="bi bi-chat-left-quote-fill me-2"></span>
+            <strong>AI Feedback</strong>
+        </div>
+        <small class="text-white-50">@_feedback.GeneratedAt.ToString("MMM dd, yyyy HH:mm")</small>
+    </div>
+    <div class="card-body">
+        @if (_feedback.IsError)
+        {
+            <div class="alert alert-warning d-flex align-items-center" role="alert">
+                <span class="bi bi-exclamation-triangle-fill me-2"></span>
+                <div>@_feedback.Feedback</div>
+            </div>
+        }
+        else
+        {
+            <div class="feedback-content">
+                @((MarkupString)FormatFeedback(_feedback.Feedback))
+            </div>
+        }
+    </div>
+    <div class="card-footer bg-light">
+        <button class="btn btn-outline-primary btn-sm" @onclick="HandleRefreshClick" disabled="@_isRefreshing">
+            <span class="bi bi-arrow-clockwise @(_isRefreshing ? "spinner-border spinner-border-sm" : "")"></span>
+            @(_isRefreshing ? "Refreshing..." : "Get New Feedback")
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public AiCoachViewModel Feedback { get; set; } = null!;
+
+    [Parameter]
+    public EventCallback OnRefresh { get; set; }
+
+    private AiCoachViewModel _feedback => Feedback;
+    private bool _isRefreshing = false;
+
+    private async Task HandleRefreshClick()
+    {
+        _isRefreshing = true;
+        await OnRefresh.InvokeAsync();
+        _isRefreshing = false;
+    }
+
+    private string FormatFeedback(string feedback)
+    {
+        // Simple formatting: convert line breaks to <br> tags
+        return feedback.Replace("\n", "<br>");
+    }
+}
+
+<style>
+    .feedback-content {
+        font-size: 1.05rem;
+        line-height: 1.7;
+        color: #333;
+        white-space: pre-wrap;
+    }
+
+    .card-header {
+        border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+    }
+</style>

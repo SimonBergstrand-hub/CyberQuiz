@@ -23,6 +23,7 @@ builder.Services.AddScoped<CyberQuiz.UI.Services.CategoryService>();
 builder.Services.AddScoped<CyberQuiz.UI.Services.SubCategoryService>();
 builder.Services.AddScoped<CyberQuiz.UI.Services.QuizService>();
 builder.Services.AddScoped<CyberQuiz.UI.Services.ProgressService>();
+builder.Services.AddScoped<CyberQuiz.UI.Services.AiCoachService>();
 
 builder.Services.AddHttpContextAccessor();
 
