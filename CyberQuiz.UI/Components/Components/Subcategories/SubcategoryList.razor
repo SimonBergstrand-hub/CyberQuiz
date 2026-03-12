@@ -2,11 +2,11 @@
 
 <div class="subcategory-grid">
 
-@foreach (var sub in SubCategories)
-{
-    <SubcategoryCard SubCategory="@sub"
-                     OnStartQuiz="HandleStartQuiz" />
-}
+    @foreach (var sub in SubCategories)
+    {
+        <SubcategoryCard SubCategory="@sub"
+                         OnStartQuiz="HandleStartQuiz" />
+    }
 
 </div>
 
@@ -25,14 +25,10 @@
 
 <style>
 
-.subcategory-grid {
-
-    display: grid;
-
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-
-    gap: 20px;
-
-}
+    .subcategory-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+    }
 
 </style>
