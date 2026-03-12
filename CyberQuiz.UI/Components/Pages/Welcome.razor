@@ -1,6 +1,11 @@
 ﻿@page "/"
 @page "/welcome"
 
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
 <div class="welcome-content d-flex flex-column justify-content-center align-items-center text-center vh-100">
     <h1 class="display-4 fw-bold mb-3">Welcome to CyberQuiz!</h1>
     <p class="lead mb-5">Make learning fun and interactive – start your Quiz adventure today!</p>
@@ -33,3 +38,16 @@
     }
 
 </style>
+@* if user is logged in, bring him to categories instead. *@
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            NavigationManager.NavigateTo("/categories", replace: true);
+        }
+    }
+}
