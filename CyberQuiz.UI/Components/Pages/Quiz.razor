@@ -12,12 +12,12 @@
 @inject ProgressService ProgressService
 @inject NavigationManager NavigationManager
 
-<div class="quiz-container">
+@if (!quizFinished)
+{
+    <CancelQuizButton OnCancelQuiz="ReturnToSubcategory" />
+}
 
-    @if (!quizFinished)
-    {
-        <CancelQuizButton OnCancelQuiz="ReturnToSubcategory" />
-    }
+<div class="quiz-container">
 
     <QuizProgress CurrentIndex="@currentIndex"
                   TotalQuestions="@questions.Count"
