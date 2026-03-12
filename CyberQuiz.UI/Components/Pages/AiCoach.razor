@@ -1,0 +1,98 @@
+@page "/aicoach"
+@using CyberQuiz.UI.Services
+@using CyberQuiz.UI.ViewModels
+@using Microsoft.AspNetCore.Authorization
+@inject AiCoachService AiCoachService
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+@attribute [Authorize]
+
+<PageTitle>AI Coach</PageTitle>
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex align-items-center mb-4">
+                <span class="bi bi-robot fs-2 me-3 text-primary"></span>
+                <h1 class="display-5 mb-0">Your AI Coach</h1>
+            </div>
+
+            @if (!_hasStarted)
+            {
+                <div class="card shadow-sm border-primary text-center">
+                    <div class="card-body py-5">
+                        <div class="mb-4">
+                            <span class="bi bi-chat-dots display-1 text-primary"></span>
+                        </div>
+                        <h3 class="card-title mb-3">Ready to Get Coached?</h3>
+                        <p class="card-text text-muted mb-4">
+                            Get personalized feedback on your cybersecurity quiz performance.
+                            Our AI will analyze your strengths and areas for improvement.
+                        </p>
+                        <button class="btn btn-primary btn-lg" @onclick="StartCoaching">
+                            <span class="bi bi-play-circle me-2"></span>
+                            Coach Me!
+                        </button>
+                    </div>
+                </div>
+            }
+            else if (_isLoading)
+            {
+                <div class="card shadow-sm border-info text-center">
+                    <div class="card-body py-5">
+                        <div class="mb-4">
+                            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                                <span class="visually-hidden">Thinking...</span>
+                            </div>
+                        </div>
+                        <h4 class="mb-3">Thinking...</h4>
+                        <p class="text-muted">
+                            Analyzing your quiz results and generating personalized feedback. This may take a moment.
+                        </p>
+                    </div>
+                </div>
+            }
+            else if (_feedback != null)
+            {
+                <AiCoachFeedbackCard Feedback="_feedback" OnRefresh="LoadFeedbackAsync" />
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private AiCoachViewModel? _feedback;
+    private bool _isLoading = false;
+    private bool _hasStarted = false;
+
+    private async Task StartCoaching()
+    {
+        _hasStarted = true;
+        await LoadFeedbackAsync();
+    }
+
+    private async Task LoadFeedbackAsync()
+    {
+        _isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            _feedback = await AiCoachService.GetPersonalFeedbackAsync();
+        }
+        catch (Exception)
+        {
+            _feedback = new AiCoachViewModel
+            {
+                Feedback = "An error occurred while loading feedback.",
+                GeneratedAt = DateTime.Now,
+                IsError = true
+            };
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

@@ -23,14 +23,24 @@ builder.Services.AddScoped<CyberQuiz.UI.Services.CategoryService>();
 builder.Services.AddScoped<CyberQuiz.UI.Services.SubCategoryService>();
 builder.Services.AddScoped<CyberQuiz.UI.Services.QuizService>();
 builder.Services.AddScoped<CyberQuiz.UI.Services.ProgressService>();
+builder.Services.AddScoped<CyberQuiz.UI.Services.AiCoachService>();
 
 builder.Services.AddHttpContextAccessor();
 
 var apiBase = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:5001/";
 
+// Regular API calls - normal timeout
 builder.Services.AddHttpClient("QuizApi", client =>
 {
     client.BaseAddress = new Uri(apiBase);
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
+
+// AI-specific calls - extended timeout
+builder.Services.AddHttpClient("QuizApiAI", client =>
+{
+    client.BaseAddress = new Uri(apiBase);
+    client.Timeout = TimeSpan.FromMinutes(11); // Long timeout only for AI
 });
 
 // Configure data protection to persist keys to a shared location for local development

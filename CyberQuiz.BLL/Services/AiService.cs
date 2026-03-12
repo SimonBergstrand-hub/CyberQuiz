@@ -55,8 +55,16 @@ namespace CyberQuiz.BLL.Services
             }
 
             // Prompten till Phi-3
-            var prompt = $"Analyze these quiz results for a cybersecurity student and give a brief, " +
-                         $"encouraging summary of their strengths and what they need to improve: \n{summary}";
+            var prompt =
+                $"Do NOT include greetings or introductions.\n" +
+                $"Do NOT mention 'cybersecurity student' or any other label.\n" +
+                $"ALWAYS address the user as 'you'.\n" +
+                $"Start directly with the feedback.\n" +
+                $"Analyze these quiz results for a cybersecurity student and give a brief, " +
+                $"encouraging summary of their strengths and what they need to improve: \n{summary}";
+
+
+
 
             var requestBody = new
             {
