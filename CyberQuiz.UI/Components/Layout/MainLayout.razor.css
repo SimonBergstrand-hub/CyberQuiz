@@ -15,7 +15,7 @@ main {
     min-height: 100vh;
     background-image: url('/images/QuizBackground.png');
     background-size: cover;
-    background-position: center;
+    background-position: left center;
     background-repeat: no-repeat;
 }
 
