@@ -14,6 +14,11 @@
 
 <div class="quiz-container">
 
+    @if (!quizFinished)
+    {
+        <CancelQuizButton OnCancelQuiz="ReturnToSubcategory" />
+    }
+
     <QuizProgress CurrentIndex="@currentIndex"
                   TotalQuestions="@questions.Count"
                   AnsweredCount="@questions.Count(q => q.IsAnswered)"
