@@ -19,6 +19,7 @@
         }
 
         public int CorrectAnswers { get; set; }
+        public int AnsweredQuestions { get; set; }
 
         public bool IsUnlocked
         {

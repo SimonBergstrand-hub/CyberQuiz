@@ -93,7 +93,7 @@ public class SubCategoryService
                         if (sub != null)
                         {
                             sub.CorrectAnswers = s.CorrectAnswers;
-                            sub.TotalQuestions = s.TotalQuestions;
+                            // Don't overwrite TotalQuestions - we already have the correct value from the subcategory
                         }
                     }
                 }

@@ -38,6 +38,7 @@ namespace CyberQuiz.UI.Services
     {
         public int SubCategoryId { get; set; }
         public int CorrectAnswers { get; set; }
+        public int AnsweredQuestions { get; set; }
         public int TotalQuestions { get; set; }
         public double Percentage { get; set; }
     }
