@@ -16,7 +16,7 @@ public class AiCoachService
 
     public async Task<AiCoachViewModel> GetPersonalFeedbackAsync()
     {
-        var client = _httpClientFactory.CreateClient("QuizApi");
+        var client = _httpClientFactory.CreateClient("QuizApiAI");
 
         var req = new HttpRequestMessage(HttpMethod.Get, "api/ai/coach-feedback");
         if (_httpContextAccessor.HttpContext?.Request.Headers.TryGetValue("Cookie", out var cookie) == true)

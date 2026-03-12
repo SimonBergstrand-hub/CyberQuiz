@@ -19,7 +19,6 @@
 
             @if (!_hasStarted)
             {
-                <!-- Initial state: Show call to action -->
                 <div class="card shadow-sm border-primary text-center">
                     <div class="card-body py-5">
                         <div class="mb-4">
@@ -39,7 +38,6 @@
             }
             else if (_isLoading)
             {
-                <!-- Loading state: Show thinking message -->
                 <div class="card shadow-sm border-info text-center">
                     <div class="card-body py-5">
                         <div class="mb-4">
@@ -56,7 +54,6 @@
             }
             else if (_feedback != null)
             {
-                <!-- Loaded state: Show feedback -->
                 <AiCoachFeedbackCard Feedback="_feedback" OnRefresh="LoadFeedbackAsync" />
             }
         </div>
@@ -95,6 +92,7 @@
         finally
         {
             _isLoading = false;
+            StateHasChanged();
         }
     }
 }

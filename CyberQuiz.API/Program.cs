@@ -48,7 +48,7 @@ builder.Services.AddScoped<IProgressService, ProgressService>(); // ✅ Added
 // AI Integration
 builder.Services.AddHttpClient<IAiService, AiService>(client =>
 {
-    client.Timeout = TimeSpan.FromMinutes(5); // Increase to 5 minutes or as needed
+    client.Timeout = TimeSpan.FromMinutes(10); // Increase to 5 minutes or as needed
 });
 
 var app = builder.Build();
