@@ -1,0 +1,59 @@
+@page "/Account/Manage/QuizProgress"
+
+@using CyberQuiz.UI.Components.Components.Categories
+@using CyberQuiz.UI.ViewModels
+@using CyberQuiz.UI.Services
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+
+@inject CategoryService CategoryService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Quiz Progress</PageTitle>
+@if (categories == null || !categories.Any())
+{
+    <p class="text-muted">Loading progress...</p>
+}
+else
+{
+    @*The cards wont work to click on because somewhere in my head
+    there is a voice saying that any page with password/usermanagement should not use Rendermode so I did not add it.*@
+    <div class="quiz-progress-container">
+        <CategoryList Categories="@categories" GoToDetails="@HandleGoToDetails" />
+    </div>
+}
+
+@code {
+    private List<CategoryProgressViewModel> categories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await CategoryService.GetCategoriesAsync();
+    }
+
+    private Task HandleGoToDetails(int categoryId)
+    {
+        NavigationManager.NavigateTo($"/subcategory/{categoryId}");
+        return Task.CompletedTask;
+    }
+}
+
+<style>
+    .quiz-progress-container .category-list-container {
+        justify-content: flex-start;
+        align-items: flex-start;
+        min-height: auto;
+        padding: 0;
+    }
+
+    .quiz-progress-container .category-list {
+        justify-content: flex-start;
+        gap: 12px;
+    }
+
+    .quiz-progress-container .category-card {
+        width: 200px;
+        height: 400px;
+    }
+</style>

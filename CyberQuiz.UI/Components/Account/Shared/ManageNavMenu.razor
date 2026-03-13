@@ -4,8 +4,17 @@
 @inject SignInManager<ApplicationUser> SignInManager
 
 <ul class="nav nav-pills flex-column">
+    
     <li class="nav-item">
         <NavLink class="nav-link" href="Account/Manage" Match="NavLinkMatch.All">Profile</NavLink>
+    </li>
+    @*The cards wont work to click on because somewhere in my head 
+    there is a voice saying that any page with password/usermanagement should not use Rendermode so I did not add it. *@
+    <li class="nav-item">
+        <NavLink class="nav-link nav-link-highlight" href="Account/Manage/QuizProgress">
+            Quiz Progress 
+            <span class="highlight-badge">⭐</span>
+        </NavLink>
     </li>
     <li class="nav-item">
         <NavLink class="nav-link" href="Account/Manage/Email">Email</NavLink>
@@ -38,3 +47,33 @@
         hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
     }
 }
+
+<style>
+    .nav-link-highlight {
+        font-weight: 600;
+    }
+
+    .highlight-badge {
+        display: inline-block;
+        background: #0d6efd;
+        color: white;
+        font-size: 0.85rem;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-left: 6px;
+        font-weight: 700;
+        box-shadow: 0 2px 4px rgba(13, 110, 253, 0.4);
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @@keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+    }
+</style>
