@@ -45,6 +45,16 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadSubCategories();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadSubCategories();
+    }
+
+    private async Task LoadSubCategories()
+    {
         subCategories = await SubCategoryService
             .GetSubCategoriesAsync(CategoryId);
     }

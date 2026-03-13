@@ -37,15 +37,23 @@ namespace CyberQuiz.BLL.Services
                 };
             }
 
+            // Begränsa till unika frågor (ta bästa försöket per fråga) och max 50 senaste
+            var uniqueResults = results
+                .GroupBy(r => r.QuestionId)
+                .Select(g => g.OrderByDescending(r => r.IsCorrect).ThenByDescending(r => r.Id).First())
+                .OrderByDescending(r => r.Id) // Senaste först
+                .Take(50) // Max 50 frågor för att hålla prompten kort
+                .ToList();
+
             // Hämtar alla frågor som användaren har svarat på.
-            var questionIds = results.Select(r => r.QuestionId).Distinct().ToList();
+            var questionIds = uniqueResults.Select(r => r.QuestionId).ToList();
             var questions = await _db.Questions
                 .Where(q => questionIds.Contains(q.Id))
                 .ToDictionaryAsync(q => q.Id, q => q.Text);
 
             // Skapa en textbeskrivning av resultaten (Parsing)
             var summary = new StringBuilder();
-            foreach (var res in results)
+            foreach (var res in uniqueResults)
             {
                 // Hämtar texten från vår dictionary med QuestionId
                 if (questions.TryGetValue(res.QuestionId, out var questionText))
@@ -62,7 +70,6 @@ namespace CyberQuiz.BLL.Services
                 $"Start directly with the feedback.\n" +
                 $"Analyze these quiz results for a cybersecurity student and give a brief, " +
                 $"encouraging summary of their strengths and what they need to improve: \n{summary}";
-
 
 
 

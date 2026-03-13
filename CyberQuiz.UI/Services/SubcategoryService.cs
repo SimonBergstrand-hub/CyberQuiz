@@ -104,12 +104,6 @@ public class SubCategoryService
             // Silently ignore if stats endpoint not available yet
         }
 
-        // Recalculate unlocks using the merged data
-        for (int i = 0; i < result.Count; i++)
-        {
-            result[i].IsUnlocked = i == 0 || result[i - 1].Percentage >= 80;
-        }
-
         return result;
     }
 }
